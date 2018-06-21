@@ -29,10 +29,10 @@ typedef struct __Coin
   // napr.: "BTC"
   String ID;
   // Cena za kryptomenu v penezich dle API (napr. USD)
-  int Price;
+  float Price;
   // Historie meny od nejnizsiho casoveho obdobi, 
   // napr.: 0=hodina,1=den,2=vikend  
-  int History[3]; 
+  float History[3]; 
   
 }Coin;
 
@@ -56,12 +56,18 @@ class CServis
     void SaveData(int cArg, String Data);
     // Mod pripojeni tickeru k wifi
     // Argument je pocet pokusu k pripojeni po sekundach
-    // Vraci TRUE v pripade uspechu
+    // Vraci true v pripade uspechu
     bool ConnectMode(int cAttempts);
     // Nacteni dat o menach z netu
-    // Vraci TRUE v pripade uspechu
+    // Vraci true v pripade uspechu
     // Argument je cislo konecne URL API, pocitane od 0 do 3 (EndAPI=4)
     bool ReadDataFromSite(int endAPI);
+    // Obnoveni dat ze serveru
+    // Vrati true v pripade uspechu
+    bool RefreshData();
+    // Vraci info o mene pomoci struktury Coin
+    // Argument je cislo meny pocitane od nuly
+    Coin GetCoinData(int iCoin);
 
 
   private:
@@ -111,6 +117,12 @@ String CServis::GetStrPage()
 {
   return __strPage;
 }
+
+Coin CServis::GetCoinData(int iCoin)
+{
+  return __sCoin[iCoin];      
+}
+
 
 bool CServis::ReadDataFromSite(int endAPI)
 {
@@ -171,10 +183,25 @@ bool CServis::ReadDataFromSite(int endAPI)
   JsonObject& root_0 = root[0];
   // Nyni uz si roztridime jednotlive polozky do promennych  
   __sCoin[endAPI].ID = root_0.get<String>(__Symbol);
-  __sCoin[endAPI].Price = root_0.get<int>(__Price);
-  __sCoin[endAPI].History[0] = root_0.get<int>(__HHour);
-  __sCoin[endAPI].History[1] = root_0.get<int>(__HDay);
-  __sCoin[endAPI].History[2] = root_0.get<int>(__HWeek);
+  __sCoin[endAPI].Price = root_0.get<float>(__Price);
+  __sCoin[endAPI].History[0] = root_0.get<float>(__HHour);
+  __sCoin[endAPI].History[1] = root_0.get<float>(__HDay);
+  __sCoin[endAPI].History[2] = root_0.get<float>(__HWeek);
+  /*
+ Serial.print("\n* Coin no.");
+ Serial.print(endAPI);
+ Serial.print(" Symbol: ");
+ Serial.print(__sCoin[endAPI].ID);
+ Serial.print(" Price:");
+ Serial.print(__sCoin[endAPI].Price);
+ Serial.print(" History: [");
+ Serial.print(__sCoin[endAPI].History[0]);
+ Serial.print("] [");
+ Serial.print(__sCoin[endAPI].History[1]);
+ Serial.print("] [");
+ Serial.print(__sCoin[endAPI].History[2]);
+ Serial.println("]");
+  */
   // Koncime uspechem :)
   return true;
 }
@@ -236,10 +263,49 @@ bool CServis::ConnectMode(int cAttempts)
     else
     {
       Serial.println("* Reading FAILED, try again...");
+      Status = 0;
     }
   }
   
   return true;
+}
+
+
+bool CServis::RefreshData()
+{
+  int Status = 0;
+
+  while ( Status != 4 )
+  {
+    for ( int i = 0; i < 4; i++ )
+    {
+      Serial.print("* Reading data ");
+      Serial.print(i);
+      Serial.print("...");
+      if ( ReadDataFromSite(i) )
+      {
+        Status++;
+        Serial.println("OK");
+      }
+      else
+      {
+        Serial.println("FAIL");
+        break;
+      }
+      delay(1000);
+    }
+    if ( Status == 4 )
+    {
+      Serial.println("* ALL reading success.");
+    }
+    else
+    {
+      Serial.println("* Reading FAILED, try again...");
+      Status = 0;
+    }
+  }
+  
+  return true; 
 }
 
 
@@ -442,11 +508,11 @@ void CServis::Init( bool SaveEprom )
   __EndAPI[2] = "/v1/ticker/ripple/";
   __EndAPI[3] = "/v1/ticker/iota/";
 
-  __Symbol = "symbol";
-  __Price = "price_usd";
-  __HHour = "percent_change_1h";
-  __HDay = "percent_change_24h";
-  __HWeek = "percent_change_7d";
+  __Symbol  = "symbol";
+  __Price   = "price_usd";
+  __HHour   = "percent_change_1h";
+  __HDay    = "percent_change_24h";
+  __HWeek   = "percent_change_7d";
   
   __sCoin[0].ID = "BTC";
   __sCoin[1].ID = "ETH";

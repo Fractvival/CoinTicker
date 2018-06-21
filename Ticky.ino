@@ -17,6 +17,10 @@ CServis servis;
 // 2 = Normal mode, nacitani dat z netu a vypis na LCD
 int iMode;
 
+
+// Pocitadlo pro obnovu/nacteni dat ze serveru 
+int iTime = 0;
+
 // Obsluha pro vypis webove stranky k nastaveni tickeru 
 void handleRoot()
 {
@@ -50,8 +54,9 @@ void setup()
   }
   else
   {
-    Serial.println("* Wifi IS set! Switching to connect mode.");
+    Serial.println("* Wifi name detecting! Switching to connect mode.");
     iMode = 1;
+    iTime = 0;
   }
 }
 
@@ -77,14 +82,15 @@ void loop()
           if ( message.length() > 0 )
           {
             servis.SaveData(i,message);
-            Serial.print("* Argument c.");
+            Serial.print("* Setting item no.");
             Serial.print(i);
-            Serial.print(" zmenen na: ");
+            Serial.print(" changed to: ");
             Serial.println(message);
           }
         }
         Serial.println("* ALL setting done, switching to Connect mode.");
         iMode = 1;
+        iTime = 0;
       }
       break;
     }
@@ -99,12 +105,39 @@ void loop()
       }
       Serial.println("* Connect mode done, switching to Normal mode.");
       iMode = 2;
+      iTime = 0;
       break;
     }
     case 2:
     {
-      
+      delay(100);
+      iTime += 1;
+      if ( iTime >= 3000 )
+      {
+        iTime = 0;
+        Serial.println("\n* Start reloading data...");
+        servis.RefreshData();
+        Serial.println("* RELOADED!");
 
+        for ( int i = 0; i < 4; i++ )
+        {
+          Coin coin = servis.GetCoinData(i);
+          Serial.print("* Coin no.");
+          Serial.print(i);
+          Serial.print(" Symbol: ");
+          Serial.print(coin.ID);
+          Serial.print(" Price:");
+          Serial.print(coin.Price);
+          Serial.print(" History: [");
+          Serial.print(coin.History[0]);
+          Serial.print("] [");
+          Serial.print(coin.History[1]);
+          Serial.print("] [");
+          Serial.print(coin.History[2]);
+          Serial.println("]");
+        }
+        
+      }
       break;
     }
   }
