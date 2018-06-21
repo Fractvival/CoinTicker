@@ -20,9 +20,9 @@ POZOR! Pri zmene nazvu wifi na kterou se bude ticker pripojovat nesmi
        nastaveni prave tim, ze zkontroluje nazev wifi pro pripojeni.
 
 Nastaveni dat v tickeru na defaultni hodnoty lze provest v casti Setup(),
-ve funkci Init() tridy CServis zmenou parametru na TRUE. 
+ve funkci Init() tridy CServis zmenou parametru na true. 
 
-       servis.Init(TRUE);
+       servis.Init(true);
 
 Po tomto kroku se ticker po spusteni opet prepne do modu nastaveni.
 
