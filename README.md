@@ -6,7 +6,9 @@ Zkoušeno na Wemos D1 mini Lite a Wemos D1 mini
 
 Pri prvnim spusteni se Ticker automaticky prepne do modu nastaveni.
 Mod nastaveni promeni Ticker ve wifi server, pripoj se tedy k teto wifi:
+
 Nazev: MyTicker
+
 Heslo: 121212121212
 
 Po pripojeni na tuto wifi prejdi do prohlizece a zde otevri adresu 
