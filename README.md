@@ -25,5 +25,6 @@ ve funkci Init() tridy CServis zmenou parametru na TRUE.
        servis.Init(TRUE);
 
 Po tomto kroku se ticker po spusteni opet prepne do modu nastaveni.
+
 *Planuje se pridani tlacitka RESET, po jehoz stisknuti se taktez
  provede zapis defaulnich hodnot.
