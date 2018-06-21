@@ -18,3 +18,8 @@ POZOR! Pri zmene nazvu wifi na kterou se bude ticker pripojovat nesmi
        byt pouzito nazvu MyWifi.
        Ticker pri kazdem spusteni testuje zda-li je provedeno jeho
        nastaveni prave tim, ze zkontroluje nazev wifi pro pripojeni.
+
+Nastaveni dat v tickeru na defaultni hodnoty lze provest v casti Setup(),
+ve funkci Init() tridy CServis zmenou parametru na TRUE. 
+
+       servis.Init(TRUE);
