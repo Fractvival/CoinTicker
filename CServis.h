@@ -11,6 +11,7 @@
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <WiFiClientSecure.h>
 
 // Velikost ROM v bajtech
 #define ROM_SIZE 512
@@ -27,6 +28,8 @@ typedef struct __Coin
   // Mezinarodni zkratka (symbol) meny, 
   // napr.: "BTC"
   String ID;
+  // Cena za kryptomenu v penezich dle API (napr. USD)
+  int Price;
   // Historie meny od nejnizsiho casoveho obdobi, 
   // napr.: 0=hodina,1=den,2=vikend  
   int History[3]; 
@@ -57,9 +60,8 @@ class CServis
     bool ConnectMode(int cAttempts);
     // Nacteni dat o menach z netu
     // Vraci TRUE v pripade uspechu
-    // Prvni argument je pocet pokusu na cteni po sekundach
-    // Druhy argument je cislo konecne URL API, pocitane od 0 do 3 (EndAPI=4)
-    bool ReadDataFromSite(int cAttemts, int endAPI );
+    // Argument je cislo konecne URL API, pocitane od 0 do 3 (EndAPI=4)
+    bool ReadDataFromSite(int endAPI);
 
 
   private:
@@ -110,21 +112,70 @@ String CServis::GetStrPage()
   return __strPage;
 }
 
-bool CServis::ReadDataFromSite(int cAttemts, int endAPI)
+bool CServis::ReadDataFromSite(int endAPI)
 {
-  const size_t bufferSize = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(15) + 500;
+  // Vypocet velikost bufferu + 380 bajtu pro duplikaty
+  const size_t bufferSize = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(15) + 380;
+  // Definice dynamickeho (automatickeho) bufferu
   DynamicJsonBuffer jsonBuffer(bufferSize);
-  //ArduinoJson::StaticJsonBuffer<bufferSize> jsonBuffer; 
-
-
-  JsonArray& root = jsonBuffer.parseArray(json);
+  //**StaticJsonBuffer<bufferSize> jsonBuffer;
+  // Pomocna promenna pro ulozeni nactene stranky z netu
+  String payload;
+  // Vytvoreni SSL klienta pro komunikaci se serverem
+  // Zabezpecene pripojeni je vetsinou vyzadovano serverem
+  WiFiClientSecure client;
+  // V pripade ze se na server nelze pripojit, konci neuspechem
+  if (!client.connect(__API, 443)) 
+  {
+    Serial.print("[client.connect() failed] ");
+    return false;
+  }
+  // Posleme pozadavek na server pro ziskani dat
+  client.print(String("GET ") + __EndAPI[endAPI] + " HTTP/1.1\r\n" +
+               "Host: " + __API + "\r\n" +
+               "Connection: close\r\n\r\n");
+  // Pouza pro server na spracovani pozadavku
+  delay(100);
+  // V pripade dostupnosti dat je nacteme radek po radku
+  while ( client.available() )
+  {
+    payload += client.readStringUntil('\n');
+  }
+  // Zastavime pripojeni
+  client.stop();
+  // Z nactene stranky vytahneme cisty JSON vcetne hranatych zavorek
+  // Pokud se hranate zavorky nenachazi, skonci neuspechem
+  // Toto lze do budoucna lepe osetrit
+  int indexLeft = payload.indexOf("[");
+  if ( indexLeft == -1 )
+  {
+    Serial.print("[indexLeft failed] ");
+    return false;
+  }
+  int indexRight = payload.indexOf("]",indexLeft );
+  if ( indexRight == -1 )
+  {
+    Serial.print("[indexRight failed] ");
+    return false;
+  }
+  // Nyni uz provedeme vytazek cisteho JSONu
+  payload = payload.substring( indexLeft, indexRight+1 );
+  JsonArray& root = jsonBuffer.parseArray(payload.c_str());
+  // Otestujeme spravnost JSONu
+  // V pripade neuspechu koncime
+  if (!root.success()) 
+  {
+    Serial.print("[root.succes() failed] ");
+    return false;
+  }  
   JsonObject& root_0 = root[0];
-  const char* root_0_symbol = root_0[__Symbol];
-  const char* root_0_price_usd = root_0[__Price];
-  const char* root_0_percent_change_1h = root_0[__HHour];
-  const char* root_0_percent_change_24h = root_0[__HDay];
-  const char* root_0_percent_change_7d = root_0[__HWeek];
-
+  // Nyni uz si roztridime jednotlive polozky do promennych  
+  __sCoin[endAPI].ID = root_0.get<String>(__Symbol);
+  __sCoin[endAPI].Price = root_0.get<int>(__Price);
+  __sCoin[endAPI].History[0] = root_0.get<int>(__HHour);
+  __sCoin[endAPI].History[1] = root_0.get<int>(__HDay);
+  __sCoin[endAPI].History[2] = root_0.get<int>(__HWeek);
+  // Koncime uspechem :)
   return true;
 }
 
@@ -157,7 +208,36 @@ bool CServis::ConnectMode(int cAttempts)
   Serial.println("\n* Connected.");
   Serial.println("* Now, attempt to first retrieve data from the site.");
 
-  Serial.print("* Reading.");
+  int Status = 0;
+
+  while ( Status != 4 )
+  {
+    for ( int i = 0; i < 4; i++ )
+    {
+      Serial.print("* Reading data ");
+      Serial.print(i);
+      Serial.print("...");
+      if ( ReadDataFromSite(i) )
+      {
+        Status++;
+        Serial.println("OK");
+      }
+      else
+      {
+        Serial.println("FAIL");
+        break;
+      }
+      delay(1000);
+    }
+    if ( Status == 4 )
+    {
+      Serial.println("* ALL reading success.");
+    }
+    else
+    {
+      Serial.println("* Reading FAILED, try again...");
+    }
+  }
   
   return true;
 }

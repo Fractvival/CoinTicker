@@ -32,8 +32,8 @@ void setup()
   Serial.begin(9600);
   Serial.println("\n\n* CoinTicker v1.0");
   // Init jadra tickeru
-  // Argument TRUE provede zapis defaultnich hodnot pred ctenim dat z epromky
-  servis.Init(FALSE);
+  // Argument true provede zapis defaultnich hodnot pred ctenim dat z epromky
+  servis.Init(false);
   Serial.println("* Init done!");
   Serial.println("* Checking ROM data for connecting to WiFi.");
   // Kontrola zda/li je uz nastavena Wifi
