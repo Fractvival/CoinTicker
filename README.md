@@ -29,16 +29,16 @@ Po tomto kroku se ticker po spusteni opet prepne do modu nastaveni.
 *Planuje se pridani tlacitka RESET, po jehoz stisknuti se taktez
  provede zapis defaulnich hodnot.
  
+----------------------------------------
 PLÁNY
-
 ----------------------------------------
 
-[_] Podpora tlacitka reset
+[-] Podpora tlacitka reset
 
-[_] Podpora tlacitka pro zmenu meny
+[-] Podpora tlacitka pro zmenu meny
 
-[_] Podpora tlacitka pro zmenu historie
+[-] Podpora tlacitka pro zmenu historie
 
-[_] LCD -> veskere operace LCD
+[-] LCD -> veskere operace LCD
 
 
