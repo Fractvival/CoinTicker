@@ -28,7 +28,21 @@ Po tomto kroku se ticker po spusteni opet prepne do modu nastaveni.
 
 *Planuje se pridani tlacitka RESET, po jehoz stisknuti se taktez
  provede zapis defaulnich hodnot.
- 
+
+----------------------------------------
+KDE TO AKTUALNE STOJI ?
+----------------------------------------
+Posledni stav skoncil u funkce ShowCoin, ktera bude obsluhovat vypis na OLED
+Aktualne je OLED nastaven na:
+SSD1306
+I2C
+128x64
+CSL=D3
+SDA=D4
+
+Ticker nyni po nastaveni normalne nacita kazdych cca 5 minut data a kryptomenach
+Podrobne informace jsou obsazeny ve vypisech na serial portu
+
 ----------------------------------------
 PLÁNY
 ----------------------------------------
