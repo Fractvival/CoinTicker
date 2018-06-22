@@ -1,14 +1,13 @@
 # CoinTicker
-CoinTicker - Arduino - Wemos D1 mini,lite,pro
+CoinTicker // Wemos D1 mini,lite,pro
 
-Pracovní verze CoinTicker psaná v Arduino
+CoinTicker psaný v Arduino
 Zkoušeno na Wemos D1 mini Lite a Wemos D1 mini
 
 Pri prvnim spusteni se Ticker automaticky prepne do modu nastaveni.
 Mod nastaveni promeni Ticker ve wifi server, pripoj se tedy k teto wifi:
 
 Nazev: MyTicker
-
 Heslo: 121212121212
 
 Po pripojeni na tuto wifi prejdi do prohlizece a zde otevri adresu 
@@ -32,27 +31,9 @@ Po tomto kroku se ticker po spusteni opet prepne do modu nastaveni.
 ----------------------------------------
 KDE TO AKTUALNE STOJI ?
 ----------------------------------------
-Posledni stav skoncil u funkce ShowCoin, ktera bude obsluhovat vypis na OLED
-Aktualne je OLED nastaven na:
-SSD1306
-I2C
-128x64
-CSL=D3
-SDA=D4
-
-Ticker nyni po nastaveni normalne nacita kazdych cca 5 minut data a kryptomenach
-Podrobne informace jsou obsazeny ve vypisech na serial portu
+Funkce ShowCoin a vsechny jeji nalezitosti
 
 ----------------------------------------
 PLÁNY
 ----------------------------------------
-
-[-] Podpora tlacitka reset
-
-[-] Podpora tlacitka pro zmenu meny
-
-[-] Podpora tlacitka pro zmenu historie
-
-[-] LCD -> veskere operace LCD
-
-
+Veliké
