@@ -131,7 +131,7 @@ void loop()
       }
 
       
-      if ( iTime >= 3000 )
+      if ( iTime >= 600 )
       {
         iTime = 0;
         Serial.println("\n* Start reloading data...");

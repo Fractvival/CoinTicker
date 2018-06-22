@@ -84,6 +84,9 @@ class CServis
     // Vraci info o mene pomoci struktury Coin
     // Argument je cislo meny pocitane od nuly
     Coin GetCoinData(int iCoin);
+    // Upravuje ciselnou podobu do pozadovaneho tvaru vcetne tisicinek a desetinnych mist
+    // Vraci upraveny retezec
+    String FixCoinText(const float & Price);
     // Zobrazi aktualne zvolenou menu a jeji zvolenou historii na displeji
     void ShowCoin(int iCoin, int iHistory);
 
@@ -141,10 +144,154 @@ Coin CServis::GetCoinData(int iCoin)
   return __sCoin[iCoin];      
 }
 
+
+String CServis::FixCoinText(const float & Price)
+{
+  String fixString = "";
+  String conString = (String)Price;
+  int dNum = Price;
+  String dString = (String)dNum;
+  //int dPoint = conString.indexOf(".")+1;  
+  String decString = conString.substring(conString.indexOf(".")+1);
+  // Tu jde hlavne o to, srovnat pocet desetinnych mist na 2
+  // V dalsi casti teto fce se uy bude jen snizovat dle potreby.
+  switch( decString.length() )
+  {
+    case 0:
+    {
+      decString += "00";
+      break;
+    }
+    case 1:
+    {
+      decString += "0";
+      break;
+    }
+  }
+  // Kdyby snad nahodou bylo desetinnych mist vic jak 2, skrouhni to na 2
+  if ( decString.length() > 2 )
+  {
+    decString = decString.substring(0,2);
+  }
+  // A zde se uz prideluji tisicinne tecky a desetinne mista dle potreby i v minusovych hodnotach
+  ////////////////////////////
+  if ( dNum >= 0 && dNum < 10 )
+  {
+    fixString += (String)dNum;
+    fixString += ",";
+    fixString += decString;
+    //Serial.println("0-9");      
+  }
+  if ( dNum < 0 && dNum > -10 )
+  {
+    fixString += (String)dNum;
+    fixString += ",";
+    fixString += decString;
+    //Serial.println("0-9");      
+  }
+  if ( dNum >= 10 && dNum < 100 )
+  {
+    fixString += (String)dNum;
+    fixString += ",";
+    fixString += decString;
+    //Serial.println("10-99");      
+  }
+  if ( dNum <= -10 && dNum > -100 )
+  {
+    fixString += (String)dNum;
+    fixString += ",";
+    fixString += decString;
+    //Serial.println("10-99");      
+  }
+  if ( dNum >= 100 && dNum < 1000 )
+  {
+    fixString += (String)dNum;
+    fixString += ",";
+    fixString += decString.substring(0,1);
+    //Serial.println("100-999");      
+  }
+  if ( dNum <= -100 && dNum > -1000 )
+  {
+    fixString += (String)dNum;
+    fixString += ",";
+    fixString += decString.substring(0,1);
+    //Serial.println("100-999");      
+  }
+  if ( dNum >= 1000 && dNum < 10000 )
+  {
+    fixString += dString.substring(0,1);
+    fixString += ".";
+    fixString += dString.substring(1);
+    //Serial.println("1.000-9.999");      
+  }
+  if ( dNum <= -1000 && dNum > -10000 )
+  {
+    fixString += dString.substring(0,2);
+    fixString += ".";
+    fixString += dString.substring(2);
+    //Serial.println("1.000-9.999");      
+  }
+  if ( dNum >= 10000 && dNum < 100000 )
+  {
+    fixString += dString.substring(0,2);
+    fixString += ".";
+    fixString += dString.substring(2);
+    //Serial.println("10.000-99.000");      
+  }
+  if ( dNum <= -10000 && dNum > -100000 )
+  {
+    fixString += dString.substring(0,3);
+    fixString += ".";
+    fixString += dString.substring(3);
+    //Serial.println("10.000-99.000");      
+  }
+  if ( dNum > 100000 && dNum < 1000000 )
+  {
+    fixString += dString.substring(0,3);
+    fixString += ".";
+    fixString += dString.substring(3);
+    //Serial.println("100.000-999.999");      
+  }
+  if ( dNum <= -100000 && dNum > -1000000 )
+  {
+    fixString += dString.substring(0,4);
+    fixString += ".";
+    fixString += dString.substring(4);
+    //Serial.println("100.000-999.999");      
+  }
+  if ( dNum >= 1000000 )
+  {
+    fixString += dString.substring(0,1);
+    fixString += ".";
+    fixString += dString.substring(1,4);
+    fixString += ".";
+    fixString += dString.substring(4);
+    //Serial.println(">1.000.000");   
+  }
+  if ( dNum <= -1000000 )
+  {
+    fixString += dString.substring(0,2);
+    fixString += ".";
+    fixString += dString.substring(2,5);
+    fixString += ".";
+    fixString += dString.substring(5);
+    //Serial.println(">1.000.000");   
+  }
+  return fixString;
+}
+
 void CServis::ShowCoin(int iCoin, int iHistory)
 {
-  u8g2.setFont(u8g2_font_ncenB14_tr);
-  u8g2.drawStr(0,15,"Hello World!");
+  u8g2.setFont(u8g2_font_logisoso20_tn);
+
+  int Width = u8g2.getDisplayWidth();
+  int Height = u8g2.getDisplayHeight();
+
+  String chPrice = "";
+  chPrice = FixCoinText(__sCoin[iCoin].Price);
+
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chPrice.c_str() )/2), Height/2, chPrice.c_str() );
+  
   u8g2.sendBuffer();
 }
 
