@@ -12,6 +12,22 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <WiFiClientSecure.h>
+#include <Arduino.h>
+#include <U8g2lib.h>
+
+#ifdef U8X8_HAVE_HW_SPI
+#include <SPI.h>
+#endif
+#ifdef U8X8_HAVE_HW_I2C
+#include <Wire.h>
+#endif
+
+// LCD, vytvoreni objektu pro praci s displejem
+// SSD1306
+// 128x64
+// I2C = 4pinovy displej, GND,VCC,SCL,SDA
+// Hodnoty SCL(clock) a SDA(data) lze menit za cisla pinu, napr D3 a D4
+U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ D3, /* data=*/ D4, /* reset=*/ U8X8_PIN_NONE);
 
 // Velikost ROM v bajtech
 #define ROM_SIZE 512
@@ -68,6 +84,8 @@ class CServis
     // Vraci info o mene pomoci struktury Coin
     // Argument je cislo meny pocitane od nuly
     Coin GetCoinData(int iCoin);
+    // Zobrazi aktualne zvolenou menu a jeji zvolenou historii na displeji
+    void ShowCoin(int iCoin, int iHistory);
 
 
   private:
@@ -123,6 +141,12 @@ Coin CServis::GetCoinData(int iCoin)
   return __sCoin[iCoin];      
 }
 
+void CServis::ShowCoin(int iCoin, int iHistory)
+{
+  u8g2.setFont(u8g2_font_ncenB14_tr);
+  u8g2.drawStr(0,15,"Hello World!");
+  u8g2.sendBuffer();
+}
 
 bool CServis::ReadDataFromSite(int endAPI)
 {
@@ -532,6 +556,8 @@ void CServis::Init( bool SaveEprom )
     WriteEprom();
   }
   ReadEprom();
+  u8g2.begin();  
+  u8g2.clearBuffer();
 };
 
 

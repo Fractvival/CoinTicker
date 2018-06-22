@@ -20,6 +20,14 @@ int iMode;
 
 // Pocitadlo pro obnovu/nacteni dat ze serveru 
 int iTime = 0;
+// Pocitadlo pro obnovu displeje
+int iDisplay = 0;
+// Urcuje ktera mena se ma zobrazit na displej
+// Platne hodnoty jsou 0,1,2,3
+int ShowCoin = 0;
+// Urcuje ktera historie aktualni meny se ma zobrazit na displej
+// Platne hodnoty jsou 0,1,2
+int ShowHistory = 0;
 
 // Obsluha pro vypis webove stranky k nastaveni tickeru 
 void handleRoot()
@@ -106,12 +114,23 @@ void loop()
       Serial.println("* Connect mode done, switching to Normal mode.");
       iMode = 2;
       iTime = 0;
+      iDisplay = 10;
       break;
     }
     case 2:
     {
       delay(100);
+      
       iTime += 1;
+      iDisplay +=1;
+
+      if ( iDisplay >= 10 )
+      {
+        iDisplay = 0;
+        servis.ShowCoin(ShowCoin,ShowHistory);
+      }
+
+      
       if ( iTime >= 3000 )
       {
         iTime = 0;
