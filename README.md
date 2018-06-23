@@ -5,10 +5,10 @@ CoinTicker psaný v Arduino
 Zkoušeno na Wemos D1 mini Lite a Wemos D1 mini
 
 K dosažení úspěšného přelinkování je nejprve nutné přidat do seznamu knihoven tuto následující:
-Název:ArduinoJson
-Verze:5.13.2
-Autor:Benoit Blanchon
-Git odkaz:https://github.com/bblanchon/ArduinoJson
+- Název:ArduinoJson
+- Verze:5.13.2
+- Autor:Benoit Blanchon
+- Git odkaz:https://github.com/bblanchon/ArduinoJson
 
 Po přelinkování a nahrání do Wemosky se Ticker automaticky přepne do módu nastavení.
 Mód nastavení promění Ticker ve wifi server, na ten se lze připojit mobilem nebo notebookem.
