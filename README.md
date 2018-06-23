@@ -14,11 +14,12 @@ Po přelinkování a nahrání do Wemosky se Ticker automaticky přepne do módu
 Mód nastavení promění Ticker ve wifi server, na ten se lze připojit mobilem nebo notebookem.
 Dej tedy vyhledat wifi sítě a zvol následující:
 
-Nazev:MyTicker
-Heslo:121212121212
+- Nazev:MyTicker
+- Heslo:121212121212
 
-Po pripojeni na tuto wifi prejdi do prohlizece a zde otevri adresu 
-IP: 192.168.4.1
+Po připojení na tuto wifi si otevři prohlížeč a do adresního řádku napiš tuto Ip adresu a potvrď:
+
+- IP: 192.168.4.1
 
 POZOR! Pri zmene nazvu wifi na kterou se bude ticker pripojovat nesmi
        byt pouzito nazvu MyWifi.
