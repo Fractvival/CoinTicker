@@ -4,11 +4,17 @@ CoinTicker // Wemos D1 mini,lite,pro
 CoinTicker psaný v Arduino
 Zkoušeno na Wemos D1 mini Lite a Wemos D1 mini
 
-Pri prvnim spusteni se Ticker automaticky prepne do modu nastaveni.
-Mod nastaveni promeni Ticker ve wifi server, pripoj se tedy k teto wifi:
+K dosažení úspěšného přelinkování je nejprve nutné přidat do seznamu knihoven tuto následující:
+Název: ArduinoJson
+Verze: 5.13.2
+Autor: Benoit Blanchon
+Git odkaz: https://github.com/bblanchon/ArduinoJson
+
+Po přelinkování a nahrání do Wemosky se Ticker automaticky přepne do módu nastavení.
+Mód nastavení promění Ticker ve wifi server, na ten se lze připojit mobilem nebo notebookem.
+Dej tedy vyhledat wifi sítě a zvol následující:
 
 Nazev: MyTicker
-
 Heslo: 121212121212
 
 Po pripojeni na tuto wifi prejdi do prohlizece a zde otevri adresu 
