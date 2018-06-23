@@ -16,8 +16,8 @@ Po přelinkování a nahrání do Wemosky se Ticker automaticky přepne do módu
 Mód nastavení promění Ticker ve wifi server, na ten se lze připojit mobilem nebo notebookem.
 Dej tedy vyhledat wifi sítě a zvol následující:
 
-- Nazev:MyTicker
-- Heslo:121212121212
+- Nazev: MyTicker
+- Heslo: 121212121212
 
 Po připojení na tuto wifi si otevři prohlížeč a do adresního řádku napiš následující IP a potvrď:
 
@@ -37,6 +37,7 @@ Nyní klinkout na tlačítko Save&Reset které je umístěno ve spodní části 
 Pokud je to nutné, nastaveni dat v tickeru na defaultni hodnoty lze provest v části Setup(),
 ve funkci Init() třídy CServis změnou parametru na true. 
 - servis.Init(true);
+
 Po tomto kroku se ticker po spusteni opet prepne do modu nastaveni.
 
 *Planuje se pridani tlacitka RESET, po jehoz stisknuti se taktez
@@ -45,8 +46,8 @@ Po tomto kroku se ticker po spusteni opet prepne do modu nastaveni.
 ----------------------------------------
 KDE TO AKTUALNE STOJI ?
 ----------------------------------------
-LCD výstupy
-*Funkce ShowCoin a vsechny jeji nalezitosti*
+- LCD výstupy
+- *Funkce ShowCoin a vsechny jeji nalezitosti*
 
 ----------------------------------------
 PLÁNY
