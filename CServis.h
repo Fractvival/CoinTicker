@@ -282,15 +282,45 @@ String CServis::FixCoinText(const float & Price)
 
 void CServis::ShowCoin(int iCoin, int iHistory)
 {
-  u8g2.setFont(u8g2_font_logisoso20_tn);
+  u8g2.clearDisplay();
 
+  u8g2.setFont(u8g2_font_fur20_t_symbol);
   int Width = u8g2.getDisplayWidth();
   int Height = u8g2.getDisplayHeight();
-
-  String chPrice = "";
-  chPrice = FixCoinText(__sCoin[iCoin].Price);
-
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chPrice.c_str() )/2), Height/2, chPrice.c_str() );
+  String chPrice = FixCoinText(__sCoin[iCoin].Price);
+  String chPrefix = "";
+  String chPostfix = "$";
+  String chShowPrice = "";
+  chShowPrice += chPrefix;
+  chShowPrice += chPrice;
+  chShowPrice += chPostfix;
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowPrice.c_str() )/2), Height/2, chShowPrice.c_str() );
+  
+  u8g2.setFont(u8g2_font_fub11_tf);
+  String chHistory = FixCoinText(__sCoin[iCoin].History[iHistory]);
+  String chHPrefix = "";
+  if ( (int)__sCoin[iCoin].History[iHistory] >= 0 )
+  {
+    chHPrefix = "+";
+  }
+  String chHPostfix = "";
+  if ( iHistory == 0 )
+  {
+    chHPostfix = "%/h";     
+  }
+  if ( iHistory == 1)
+  {
+    chHPostfix = "%/d";     
+  }
+  if ( iHistory == 2 )
+  {
+    chHPostfix = "%/w";     
+  }
+  String chShowHistory = "";
+  chShowHistory += chHPrefix;
+  chShowHistory += chHistory;
+  chShowHistory += chHPostfix;
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowHistory.c_str() )/2), Height-5, chShowHistory.c_str() );
   
   u8g2.sendBuffer();
 }
@@ -404,7 +434,7 @@ bool CServis::ConnectMode(int cAttempts)
   } 
 
   Serial.println("\n* Connected.");
-  Serial.println("* Now, attempt to first retrieve data from the site.");
+  Serial.println("* Now, attempt to first reading data from the server.");
 
   int Status = 0;
 

@@ -20,8 +20,6 @@ int iMode;
 
 // Pocitadlo pro obnovu/nacteni dat ze serveru 
 int iTime = 0;
-// Pocitadlo pro obnovu displeje
-int iDisplay = 0;
 // Urcuje ktera mena se ma zobrazit na displej
 // Platne hodnoty jsou 0,1,2,3
 int ShowCoin = 0;
@@ -114,21 +112,13 @@ void loop()
       Serial.println("* Connect mode done, switching to Normal mode.");
       iMode = 2;
       iTime = 0;
-      iDisplay = 10;
+      servis.ShowCoin(ShowCoin,ShowHistory);
       break;
     }
     case 2:
     {
       delay(100);
-      
       iTime += 1;
-      iDisplay +=1;
-
-      if ( iDisplay >= 10 )
-      {
-        iDisplay = 0;
-        servis.ShowCoin(ShowCoin,ShowHistory);
-      }
 
       
       if ( iTime >= 600 )
@@ -137,6 +127,7 @@ void loop()
         Serial.println("\n* Start reloading data...");
         servis.RefreshData();
         Serial.println("* RELOADED!");
+        servis.ShowCoin(ShowCoin,ShowHistory);
 
         for ( int i = 0; i < 4; i++ )
         {
