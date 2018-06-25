@@ -36,22 +36,22 @@ class CServis
     // Mod pripojeni tickeru k wifi
     // Argument je pocet pokusu k pripojeni po sekundach
     // Vraci true v pripade uspechu
-    bool ConnectMode(int cAttempts);
+    bool ConnectMode(const int & cAttempts);
     // Nacteni dat o menach z netu
     // Vraci true v pripade uspechu
     // Argument je cislo konecne URL API, pocitane od 0 do 3 (EndAPI=4)
-    bool ReadDataFromSite(int endAPI);
+    bool ReadDataFromSite(const int & endAPI);
     // Obnoveni dat ze serveru
     // Vrati true v pripade uspechu
     bool RefreshData(void);
     // Vraci info o mene pomoci struktury Coin
     // Argument je cislo meny pocitane od nuly
-    Coin GetCoinData(int iCoin);
+    Coin GetCoinData(const int & iCoin);
     // Upravuje ciselnou podobu do pozadovaneho tvaru vcetne tisicinek a desetinnych mist
     // Vraci upraveny retezec
     String FixCoinText(const float & Price);
     // Zobrazi aktualne zvolenou menu a jeji zvolenou historii na displeji
-    void ShowCoin(int iCoin, int iHistory);
+    void ShowCoin(const int & iCoin,const int & iHistory);
     // Uvodni obrazovku Tickeru
     void ShowIntro(void);
 
@@ -77,7 +77,7 @@ class CServis
 
 };
 
-Coin CServis::GetCoinData(int iCoin)
+Coin CServis::GetCoinData(const int & iCoin)
 {
   return __sCoin[iCoin];      
 }
@@ -221,7 +221,7 @@ String CServis::FixCoinText(const float & Price)
 
 void CServis::ShowIntro()
 {
-  u8g2.clearDisplay();
+  u8g2.clear();
   u8g2.setFont(u8g2_font_courB18_tf);
   u8g2.setFontPosCenter();
   int Width = u8g2.getDisplayWidth();
@@ -237,9 +237,9 @@ void CServis::ShowIntro()
 }
 
 
-void CServis::ShowCoin(int iCoin, int iHistory)
+void CServis::ShowCoin(const int & iCoin,const int & iHistory)
 {
-  u8g2.clearDisplay();
+  u8g2.clear();
 
   int Width = u8g2.getDisplayWidth();
   int Height = u8g2.getDisplayHeight();
@@ -290,12 +290,8 @@ void CServis::ShowCoin(int iCoin, int iHistory)
   u8g2.sendBuffer();
 }
 
-bool CServis::ReadDataFromSite(int endAPI)
+bool CServis::ReadDataFromSite(const int & endAPI)
 {
-  // Vypocet velikost bufferu + 380 bajtu pro duplikaty
-  const size_t bufferSize = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(15) + 380;
-  // Definice dynamickeho (automatickeho) bufferu
-  DynamicJsonBuffer jsonBuffer(bufferSize);
   // Pomocna promenna pro ulozeni nactene stranky z netu
   String payload;
   // Vytvoreni SSL klienta pro komunikaci se serverem
@@ -311,7 +307,7 @@ bool CServis::ReadDataFromSite(int endAPI)
   client.print(String("GET ") + __EndAPI[endAPI] + " HTTP/1.1\r\n" +
                "Host: " + __API + "\r\n" +
                "Connection: close\r\n\r\n");
-  // Pauza pro server na spracovani pozadavku
+  // Pauza pro server na zpracovani pozadavku
   delay(100);
   // Uvolnime pamet pozadavku na server
   client.flush();
@@ -325,29 +321,25 @@ bool CServis::ReadDataFromSite(int endAPI)
   }
   // Alokace bufferu pro data
   char *bufferServerData = (char*)malloc(sizeof(char)*2048);
+  // inicializace alokovane pameti
+  memset( bufferServerData, 0, 2048 );
   // A ZDE data jednoduse nacteme
   client.readBytes(bufferServerData,sizeServerData);
   // A predame do bufferu pro JSON parsing
   payload = bufferServerData;
   // Uvolnime naalokovanou pamet
   free(bufferServerData);
-  // Z nactene stranky vytahneme cisty JSON vcetne hranatych zavorek
-  // Pokud se hranate zavorky nenachazi, skonci neuspechem
-  // Toto lze do budoucna lepe osetrit
+  // Oznackujeme si json dle hranatych zavorek
   int indexLeft = payload.indexOf("[");
-  if ( indexLeft == -1 )
-  {
-    Serial.print("[indexLeft failed] ");
-    return false;
-  }
   int indexRight = payload.indexOf("]",indexLeft );
-  if ( indexRight == -1 )
-  {
-    Serial.print("[indexRight failed] ");
-    return false;
-  }
   // Nyni uz provedeme vytazek cisteho JSONu
   payload = payload.substring( indexLeft, indexRight+1 );
+
+  // Vypocet velikost bufferu + 380 bajtu pro duplikaty
+  const size_t bufferSize = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(15) + 380;
+  // Definice dynamickeho (automatickeho) bufferu
+  DynamicJsonBuffer jsonBuffer(bufferSize);
+
   JsonArray& root = jsonBuffer.parseArray(payload.c_str());
   // Otestujeme spravnost JSONu
   // V pripade neuspechu koncime
@@ -368,7 +360,7 @@ bool CServis::ReadDataFromSite(int endAPI)
 }
 
 
-bool CServis::ConnectMode(int cAttempts)
+bool CServis::ConnectMode(const int & cAttempts)
 {
   // Prepnuti tickeru do modu station
   WiFi.mode(WIFI_STA);
@@ -464,9 +456,8 @@ void CServis::Init( const String & wifiName, const String & passName, const Stri
       __sCoin[i].History[j] = 0;
     }
   }
-
   u8g2.begin();  
-  u8g2.clearBuffer();
+  u8g2.clear();
 };
 
 

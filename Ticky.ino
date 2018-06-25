@@ -71,10 +71,10 @@ int iMode;
 int iTime = 0;
 // Urcuje ktera mena se ma zobrazit na displej
 // Platne hodnoty jsou 0,1,2,3
-int ShowCoin = 0;
+int ShowCoin = 3;
 // Urcuje ktera historie aktualni meny se ma zobrazit na displej
 // Platne hodnoty jsou 0,1,2
-int ShowHistory = 0;
+int ShowHistory = 2;
 
 ///////////////////////////////
 ///////////////////////////////
