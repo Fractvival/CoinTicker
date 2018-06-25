@@ -11,7 +11,7 @@ K dosažení úspěšného přelinkování je nejprve nutné přidat do seznamu 
 - Název: ArduinoJson
 - Verze: 5.13.2 (Číslo verze NUTNO DODRŽET !)
 - Autor: Benoit Blanchon
-- Link: [GitHub Pages](https://github.com/bblanchon/ArduinoJson)
+- Link: (https://github.com/bblanchon/ArduinoJson)
 ------------
 - Název: U8G2
 - Verze: 2.22.18
