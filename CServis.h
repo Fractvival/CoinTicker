@@ -52,6 +52,8 @@ class CServis
     String FixCoinText(const float & Price);
     // Zobrazi aktualne zvolenou menu a jeji zvolenou historii na displeji
     void ShowCoin(int iCoin, int iHistory);
+    // Uvodni obrazovku Tickeru
+    void ShowIntro(void);
 
   private:
 
@@ -216,13 +218,37 @@ String CServis::FixCoinText(const float & Price)
   return fixString;
 }
 
+
+void CServis::ShowIntro()
+{
+  u8g2.clearDisplay();
+  u8g2.setFont(u8g2_font_courB18_tf);
+  u8g2.setFontPosCenter();
+  int Width = u8g2.getDisplayWidth();
+  int Height = u8g2.getDisplayHeight();
+  String WelcomeMessage1 = "Coin";
+  String WelcomeMessage2 = "Ticker";
+  u8g2.drawStr( (Width/3)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2), 10, WelcomeMessage1.c_str() ); 
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage2.c_str())/2), 30, WelcomeMessage2.c_str() ); 
+  u8g2.setFont(u8g2_font_crox3h_tf);
+  String WelcomeMessage3 = "starting...";
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 55, WelcomeMessage3.c_str() ); 
+  u8g2.sendBuffer();
+}
+
+
 void CServis::ShowCoin(int iCoin, int iHistory)
 {
   u8g2.clearDisplay();
 
-  u8g2.setFont(COIN_FONT_NAME);
   int Width = u8g2.getDisplayWidth();
   int Height = u8g2.getDisplayHeight();
+
+  u8g2.setFontPosTop();
+  u8g2.setFont(SYMBOL_FONT_NAME);
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(__sCoin[iCoin].ID.c_str() )/2), ADD_Y_OFFSET_SYMBOL_FONT, __sCoin[iCoin].ID.c_str() );
+
+  u8g2.setFont(COIN_FONT_NAME);
   String chPrice = FixCoinText(__sCoin[iCoin].Price);
   String chPrefix = "$";
   String chPostfix = "";
@@ -230,7 +256,9 @@ void CServis::ShowCoin(int iCoin, int iHistory)
   chShowPrice += chPrefix;
   chShowPrice += chPrice;
   chShowPrice += chPostfix;
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowPrice.c_str() )/2), Height/2, chShowPrice.c_str() );
+  
+  u8g2.setFontPosCenter();
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowPrice.c_str() )/2), (Height/2)+ADD_Y_OFFSET_COIN_FONT, chShowPrice.c_str() );
   
   u8g2.setFont(HISTORY_FONT_NAME);
   String chHistory = FixCoinText(__sCoin[iCoin].History[iHistory]);
@@ -256,7 +284,8 @@ void CServis::ShowCoin(int iCoin, int iHistory)
   chShowHistory += chHPrefix;
   chShowHistory += chHistory;
   chShowHistory += chHPostfix;
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowHistory.c_str() )/2), Height-5, chShowHistory.c_str() );
+  u8g2.setFontPosBottom();
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowHistory.c_str() )/2), Height, chShowHistory.c_str() );
   
   u8g2.sendBuffer();
 }
@@ -267,7 +296,6 @@ bool CServis::ReadDataFromSite(int endAPI)
   const size_t bufferSize = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(15) + 380;
   // Definice dynamickeho (automatickeho) bufferu
   DynamicJsonBuffer jsonBuffer(bufferSize);
-  //**StaticJsonBuffer<bufferSize> jsonBuffer;
   // Pomocna promenna pro ulozeni nactene stranky z netu
   String payload;
   // Vytvoreni SSL klienta pro komunikaci se serverem
@@ -283,15 +311,26 @@ bool CServis::ReadDataFromSite(int endAPI)
   client.print(String("GET ") + __EndAPI[endAPI] + " HTTP/1.1\r\n" +
                "Host: " + __API + "\r\n" +
                "Connection: close\r\n\r\n");
-  // Pouza pro server na spracovani pozadavku
+  // Pauza pro server na spracovani pozadavku
   delay(100);
-  // V pripade dostupnosti dat je nacteme radek po radku
-  while ( client.available() )
+  // Uvolnime pamet pozadavku na server
+  client.flush();
+  // Zjisti velikost dat pro prijem
+  // Pokud data nejsou, konec a opakovat
+  int sizeServerData = client.available();
+  if ( sizeServerData <= 0 )
   {
-    payload += client.readStringUntil('\n');
+    Serial.print("[Data failed]");
+    return false;
   }
-  // Zastavime pripojeni
-  client.stop();
+  // Alokace bufferu pro data
+  char *bufferServerData = (char*)malloc(sizeof(char)*2048);
+  // A ZDE data jednoduse nacteme
+  client.readBytes(bufferServerData,sizeServerData);
+  // A predame do bufferu pro JSON parsing
+  payload = bufferServerData;
+  // Uvolnime naalokovanou pamet
+  free(bufferServerData);
   // Z nactene stranky vytahneme cisty JSON vcetne hranatych zavorek
   // Pokud se hranate zavorky nenachazi, skonci neuspechem
   // Toto lze do budoucna lepe osetrit
@@ -331,102 +370,65 @@ bool CServis::ReadDataFromSite(int endAPI)
 
 bool CServis::ConnectMode(int cAttempts)
 {
+  // Prepnuti tickeru do modu station
   WiFi.mode(WIFI_STA);
+  // Vypis informaci o wifi na konzolu
   Serial.println("* Ticker switched to WIFI_STA");
   Serial.print("* Start connecting to wifi: ");
   Serial.print(__ssidWifi);
   Serial.print(" [");
   Serial.print(__passWifi);
   Serial.println("]");
-
   Serial.print("* Connecting.");
+  // Pocitadlo neuspechu
   int cLoop = 0;
-
+  // Zahajeni spojeni
   WiFi.begin(__ssidWifi.c_str(),__passWifi.c_str());
+  // Pockame na spojeni s wifi s kontrolou neuspechu
+  // Pokud spojeni neprobehne ve stanovenem poctu pokusu, ukonci smycku
   while (WiFi.status() != WL_CONNECTED) 
   { 
-    delay(1000);
+    delay(500);
     Serial.print(".");
     cLoop++;
     if ( cLoop >= cAttempts )
     {
       return false;
     }
-  } 
-
-  Serial.println("\n* Connected.");
-  Serial.println("* Now, attempt to first reading data from the server.");
-
-  int Status = 0;
-
-  while ( Status != 4 )
-  {
-    for ( int i = 0; i < 4; i++ )
-    {
-      Serial.print("* Reading data ");
-      Serial.print(i);
-      Serial.print("...");
-      if ( ReadDataFromSite(i) )
-      {
-        Status++;
-        Serial.println("OK");
-      }
-      else
-      {
-        Serial.println("FAIL");
-        break;
-      }
-      delay(1000);
-    }
-    if ( Status == 4 )
-    {
-      Serial.println("* ALL reading success.");
-    }
-    else
-    {
-      Serial.println("* Reading FAILED, try again...");
-      Status = 0;
-    }
   }
-  
+  // Po navazani spojeni vypis info do konzoly  
+  Serial.println("OK!");
+  Serial.println("* Attempt to first reading data from the server.");
+  // A nyni jiz proved prvni nacteni dat ze serveru
+  for ( int i = 0; i < 4; i++ )
+  {
+    Serial.print("* Reading data ");
+    Serial.print(i);
+    Serial.print(".");
+    while( !ReadDataFromSite(i) )
+    {
+      Serial.print(".");
+    }
+    Serial.println("OK");
+  }
   return true;
 }
 
 
 bool CServis::RefreshData(void)
 {
-  int Status = 0;
-
-  while ( Status != 4 )
+  for ( int i = 0; i < 4; i++ )
   {
-    for ( int i = 0; i < 4; i++ )
+    Serial.print("* Reading data ");
+    Serial.print(i);
+    Serial.print(".");
+    // Provadej nacteni dat dokud nebude vse OK
+    while( !ReadDataFromSite(i) )
     {
-      Serial.print("* Reading data ");
-      Serial.print(i);
-      Serial.print("...");
-      if ( ReadDataFromSite(i) )
-      {
-        Status++;
-        Serial.println("OK");
-      }
-      else
-      {
-        Serial.println("FAIL");
-        break;
-      }
-      delay(1000);
+      Serial.print(".");
     }
-    if ( Status == 4 )
-    {
-      Serial.println("* ALL reading success.");
-    }
-    else
-    {
-      Serial.println("* Reading FAILED, try again...");
-      Status = 0;
-    }
+    Serial.println("OK");
   }
-  
   return true; 
 }
 

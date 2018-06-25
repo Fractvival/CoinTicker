@@ -45,10 +45,14 @@
 #define JSON_HISTORY1 "percent_change_1h"
 #define JSON_HISTORY2 "percent_change_24h"
 #define JSON_HISTORY3 "percent_change_7d"
+// Font pouzity pro zobrazeni symbolu meny
+#define SYMBOL_FONT_NAME u8g2_font_timB14_tf
 // Font pouzity pro zobrazeni ceny za menu (font knihovny U8G2)
-#define COIN_FONT_NAME u8g2_font_fur20_t_symbol
+#define COIN_FONT_NAME u8g2_font_logisoso18_tf
 // Font pouzity pro zobrazeni historie ceny men (font knihovny U8G2)
-#define HISTORY_FONT_NAME u8g2_font_fub11_tf
+#define HISTORY_FONT_NAME u8g2_font_crox3h_tf//u8g2_font_helvB12_tf
+#define ADD_Y_OFFSET_SYMBOL_FONT 2
+#define ADD_Y_OFFSET_COIN_FONT 3
 
 
 // Knihovna obsahujici obsluznou tridu CServis
@@ -83,6 +87,7 @@ void setup()
                 URI1, URI2, URI3, URI4, 
                 JSON_COIN_SYMBOL, JSON_PRICE, 
                 JSON_HISTORY1,JSON_HISTORY2,JSON_HISTORY3 );
+  servis.ShowIntro();
   Serial.println("* Init done!");
   iMode = 0;
   iTime = 0;
