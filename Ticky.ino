@@ -141,6 +141,7 @@ void loop()
           Serial.println("]");
         }
       }
+      
       break;
     }
   }
