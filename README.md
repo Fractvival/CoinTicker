@@ -23,8 +23,7 @@ Pred linkováním a uploadem do Wemosu nutno provest nastaveni Tickeru v uvodu s
 ----------------------------------------
 KDE TO AKTUALNE STOJI ?
 ----------------------------------------
-- LCD výstupy
-- *Funkce ShowCoin a vsechny jeji nalezitosti*
+- Ovládání / Tlačítka
 
 ----------------------------------------
 PLÁNY
