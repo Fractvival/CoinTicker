@@ -106,7 +106,7 @@ void loop()
         break;
       }
       Serial.println("* Connect mode done, switching to Normal mode.");
-      iMode = 2;
+      iMode = 1;
       iTime = 0;
       servis.ShowCoin(ShowCoin,ShowHistory);
       break;
