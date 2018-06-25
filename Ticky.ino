@@ -1,9 +1,55 @@
-// COIN TICKER v1.0
-// PROGMaxi software
+//////////////////////
+// COIN TICKER v1.1
 // 
-// Na serial portu probihaji vypisy danych akci o rychlosti 9600
-// PROSIM dodrzet tuto rychlost a pokud pribude zmena u ktere lze
-// provadet textovou kontrolu, zaved jeji vypis na konzolu
+//////////////////////
+//
+// NUTNO pridat ve spravci knihoven externi hnihovnu ArduinoJson 5.13.2 by Benoit Blanchon: 
+// https://github.com/bblanchon/ArduinoJson
+// 
+// NUTNO pridat ve spravci knihoven externi hnihovnu U8G2 2.22.18(verze pri sestavovani) by Oliver: 
+// https://github.com/olikraus/u8g2
+//
+/////////
+
+#include <ArduinoJson.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <WiFiClientSecure.h>
+#include <Arduino.h>
+#include <U8g2lib.h>
+
+// NASTAVENI TICKERU >
+
+// Rychlost serial portu pro vypisy
+#define SERIAL_SPEED 9600
+// Urceni Clock pinu (SCL) pro displej
+#define SCL D4
+// Urceni Data pinu (SDA) pro displej
+#define SDA D3
+// Rychlost obnovy dat ze serveru po 100ms intervalech (600*100=60000/1000=60 sekund)
+#define REFRESH_TIME 600
+// Nazev wifi pro pripojeni tickeru
+#define WIFI_NAME "wifi_name"
+// Heslo wifi
+#define WIFI_PASS "wifi_password"
+// Adresa API pro nacitani dat
+#define API_URL "api.coinmarketcap.com"
+// Konecne adresy jednotlivych men (API_URL+URIx)
+#define URI1 "/v1/ticker/bitcoin/"
+#define URI2 "/v1/ticker/ethereum/"
+#define URI3 "/v1/ticker/ripple/"
+#define URI4 "/v1/ticker/iota/"
+// Definice JSON symbolu k ziskani dat
+#define JSON_COIN_SYMBOL "symbol"
+#define JSON_PRICE "price_usd"
+#define JSON_HISTORY1 "percent_change_1h"
+#define JSON_HISTORY2 "percent_change_24h"
+#define JSON_HISTORY3 "percent_change_7d"
+// Font pouzity pro zobrazeni ceny za menu (font knihovny U8G2)
+#define COIN_FONT_NAME u8g2_font_fur20_t_symbol
+// Font pouzity pro zobrazeni historie ceny men (font knihovny U8G2)
+#define HISTORY_FONT_NAME u8g2_font_fub11_tf
+
 
 // Knihovna obsahujici obsluznou tridu CServis
 #include "CServis.h"
@@ -12,9 +58,8 @@
 CServis servis;
 
 // Mody Tickeru -> nastavuje Ticker
-// 0 = Setting mode, nastaveni tickeru
-// 1 = Connect mode, pripojeni k Wifi
-// 2 = Normal mode, nacitani dat z netu a vypis na LCD
+// 0 = Connect mode, pripojeni k Wifi
+// 1 = Normal mode, nacitani dat z netu a vypis na LCD
 int iMode;
 
 
@@ -27,80 +72,31 @@ int ShowCoin = 0;
 // Platne hodnoty jsou 0,1,2
 int ShowHistory = 0;
 
-// Obsluha pro vypis webove stranky k nastaveni tickeru 
-void handleRoot()
-{
-  server.send ( 200, "text/html", servis.GetStrPage() );
-  Serial.println("* Client refresh page!");
-}
-
 ///////////////////////////////
 ///////////////////////////////
 void setup() 
 {
   // Init konzoly
-  Serial.begin(9600);
-  Serial.println("\n\n* CoinTicker v1.0");
-  // Init jadra tickeru
-  // Argument true provede zapis defaultnich hodnot pred ctenim dat z epromky
-  servis.Init(false);
+  Serial.begin(SERIAL_SPEED);
+  Serial.println("\n\n* CoinTicker v1.1");
+  servis.Init( WIFI_NAME, WIFI_PASS, API_URL, 
+                URI1, URI2, URI3, URI4, 
+                JSON_COIN_SYMBOL, JSON_PRICE, 
+                JSON_HISTORY1,JSON_HISTORY2,JSON_HISTORY3 );
   Serial.println("* Init done!");
-  Serial.println("* Checking ROM data for connecting to WiFi.");
-  // Kontrola zda/li je uz nastavena Wifi
-  // Pokud ne, spusti se Setting mode
-  // Pokud ano, spusti se mod pripojeni k Wifi
-  if ( !servis.IsSet() )
-  {
-    Serial.println("* Wifi is NOT set! Switching to setting mode.");
-    Serial.println("* Setting mode starting.");
-    servis.SettingMode();
-    server.on ( "/", handleRoot );
-    server.begin();
-    iMode = 0;
-  }
-  else
-  {
-    Serial.println("* Wifi name detecting! Switching to connect mode.");
-    iMode = 1;
-    iTime = 0;
-  }
+  iMode = 0;
+  iTime = 0;
 }
 
 ////////////////////////////////////
 ////////////////////////////////////
 void loop() 
 {
-  // 0 = Setting mode
-  // 1 = Connect mode
-  // 2 = Normal mode
+  // 0 = Connect mode
+  // 1 = Normal mode
   switch( iMode )
   {
     case 0:
-    {
-      server.handleClient();
-      // Pokud bude nejaky argument ze strany klienta vyplnen a potvrzen, provedeme jeho zapis 
-      if ( server.args() )
-      {
-        String message;
-        for ( int i = 0; i < 12; i++ )
-        {
-          message = server.arg(i);
-          if ( message.length() > 0 )
-          {
-            servis.SaveData(i,message);
-            Serial.print("* Setting item no.");
-            Serial.print(i);
-            Serial.print(" changed to: ");
-            Serial.println(message);
-          }
-        }
-        Serial.println("* ALL setting done, switching to Connect mode.");
-        iMode = 1;
-        iTime = 0;
-      }
-      break;
-    }
-    case 1:
     {
       Serial.println("* Connect mode starting.");
       // Pokud se nelze pripojit k wifi, proved dalsi kolo...
@@ -115,13 +111,11 @@ void loop()
       servis.ShowCoin(ShowCoin,ShowHistory);
       break;
     }
-    case 2:
+    case 1:
     {
       delay(100);
       iTime += 1;
-
-      
-      if ( iTime >= 600 )
+      if ( iTime >= REFRESH_TIME )
       {
         iTime = 0;
         Serial.println("\n* Start reloading data...");
@@ -146,10 +140,8 @@ void loop()
           Serial.print(coin.History[2]);
           Serial.println("]");
         }
-        
       }
       break;
     }
   }
-
 }
