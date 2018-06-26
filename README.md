@@ -2,7 +2,8 @@ CoinTicker psaný v Arduino
 Zkoušeno na Wemos D1 mini Lite a Wemos D1 mini
 
 <p align="left">
-  <img width="128" height="80" src="https://github.com/Fractvival/CoinTicker/blob/master/Images/03.jpg"><img width="128" height="80" src="https://github.com/Fractvival/CoinTicker/blob/master/Images/04.jpg">
+  <img width="128" height="96" src="https://github.com/Fractvival/CoinTicker/blob/master/Images/03.jpg">
+  <img width="128" height="96" src="https://github.com/Fractvival/CoinTicker/blob/master/Images/04.jpg">
 </p>
 
 KNIHOVNY
