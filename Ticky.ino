@@ -38,7 +38,7 @@
 // Konecne adresy jednotlivych men
 #define URI1 "/v1/ticker/bitcoin/"
 #define URI2 "/v1/ticker/ethereum/"
-#define URI3 "/v1/ticker/ripple/"
+#define URI3 "/v1/ticker/binance-coin/"
 #define URI4 "/v1/ticker/iota/"
 // Definice JSON symbolu k ziskani dat
 #define JSON_COIN_SYMBOL "symbol"
