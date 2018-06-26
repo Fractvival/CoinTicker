@@ -53,7 +53,12 @@ class CServis
     // Zobrazi aktualne zvolenou menu a jeji zvolenou historii na displeji
     void ShowCoin(const int & iCoin,const int & iHistory);
     // Uvodni obrazovku Tickeru
-    void ShowIntro(void);
+    void ShowIntro(const String & Text1);
+    // Informace sdeleni o pripojovani
+    void ShowConnect(const String & Text1);
+    void ShowConnect(const String & Text1, const String & Text2);
+    // Informace sdeleni o nacitani dat ze serveru
+    void ShowReadData(const String & Text1);
 
   private:
 
@@ -219,7 +224,7 @@ String CServis::FixCoinText(const float & Price)
 }
 
 
-void CServis::ShowIntro()
+void CServis::ShowIntro(const String & Text1)
 {
   u8g2.clear();
   u8g2.setFont(u8g2_font_courB18_tf);
@@ -231,8 +236,55 @@ void CServis::ShowIntro()
   u8g2.drawStr( (Width/3)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2), 10, WelcomeMessage1.c_str() ); 
   u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage2.c_str())/2), 30, WelcomeMessage2.c_str() ); 
   u8g2.setFont(u8g2_font_crox3h_tf);
-  String WelcomeMessage3 = "starting...";
+  String WelcomeMessage3 = Text1;
   u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 55, WelcomeMessage3.c_str() ); 
+  u8g2.sendBuffer();
+}
+
+void CServis::ShowConnect(const String & Text1)
+{
+  u8g2.clear();
+  u8g2.setFont(u8g2_font_open_iconic_www_4x_t);
+  u8g2.setFontPosCenter();
+  int Width = u8g2.getDisplayWidth();
+  int Height = u8g2.getDisplayHeight();
+  String WelcomeMessage1 = "Q";
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2), 18, WelcomeMessage1.c_str() ); 
+  u8g2.setFont(u8g2_font_crox3h_tf);
+  String WelcomeMessage3 = Text1;
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 55, WelcomeMessage3.c_str() ); 
+  u8g2.sendBuffer();
+}
+
+void CServis::ShowReadData(const String & Text1)
+{
+  u8g2.clear();
+  u8g2.setFont(u8g2_font_open_iconic_arrow_4x_t);
+  u8g2.setFontPosCenter();
+  int Width = u8g2.getDisplayWidth();
+  int Height = u8g2.getDisplayHeight();
+  String WelcomeMessage1 = "P";
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2), 18, WelcomeMessage1.c_str() ); 
+  u8g2.setFont(u8g2_font_crox3h_tf);
+  String WelcomeMessage3 = Text1;
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 55, WelcomeMessage3.c_str() ); 
+  u8g2.sendBuffer();
+}
+
+void CServis::ShowConnect(const String & Text1, const String & Text2)
+{
+  u8g2.clear();
+  u8g2.setFont(u8g2_font_open_iconic_www_2x_t);
+  u8g2.setFontPosCenter();
+  int Width = u8g2.getDisplayWidth();
+  int Height = u8g2.getDisplayHeight();
+  String WelcomeMessage1 = "Q";
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2), 10, WelcomeMessage1.c_str() ); 
+  u8g2.setFont(u8g2_font_crox3h_tf);
+  String WelcomeMessage3 = Text1;
+  String WelcomeMessage4 = Text2;
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 35, WelcomeMessage3.c_str() ); 
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage4.c_str())/2), 55, WelcomeMessage4.c_str() ); 
   u8g2.sendBuffer();
 }
 
@@ -301,6 +353,8 @@ bool CServis::ReadDataFromSite(const int & endAPI)
   if (!client.connect(__API, 443)) 
   {
     Serial.print("[cli.connect() failed]");
+    ShowConnect(CONNECT_TEXT4,CONNECT_TEXT5);
+    delay(5000);
     return false;
   }
   // Posleme pozadavek na server pro ziskani dat
@@ -375,6 +429,7 @@ bool CServis::ConnectMode(const int & cAttempts)
   // Pocitadlo neuspechu
   int cLoop = 0;
   // Zahajeni spojeni
+  //WiFi.begin();
   WiFi.begin(__ssidWifi.c_str(),__passWifi.c_str());
   // Pockame na spojeni s wifi s kontrolou neuspechu
   // Pokud spojeni neprobehne ve stanovenem poctu pokusu, ukonci smycku
@@ -392,6 +447,8 @@ bool CServis::ConnectMode(const int & cAttempts)
   Serial.println("OK!");
   Serial.println("* Attempt to first reading data from the server.");
   // A nyni jiz proved prvni nacteni dat ze serveru
+  ShowReadData(READ_TEXT1);
+  delay(1000);
   for ( int i = 0; i < 4; i++ )
   {
     Serial.print("* Reading data ");

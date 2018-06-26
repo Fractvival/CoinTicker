@@ -26,6 +26,10 @@
 #define SCL D4
 // Urceni Data pinu (SDA) pro displej
 #define SDA D3
+// Urceni pinu pro prepnuti meny
+#define COIN_BUTTON D8
+// Urceni pinu pro prepnuti historie
+#define HISTORY_BUTTON D7
 // Rychlost obnovy dat ze serveru po 100ms intervalech (600*100=60000/1000=60 sekund)
 #define REFRESH_TIME 600
 // Nazev wifi pro pripojeni tickeru
@@ -34,7 +38,7 @@
 #define WIFI_PASS "wifi_password"
 // Adresa API pro nacitani dat
 #define API_URL "api.coinmarketcap.com"
-// Konecne adresy jednotlivych men (API_URL+URIx)
+// Konecne adresy jednotlivych men
 #define URI1 "/v1/ticker/bitcoin/"
 #define URI2 "/v1/ticker/ethereum/"
 #define URI3 "/v1/ticker/ripple/"
@@ -55,6 +59,16 @@
 #define ADD_Y_OFFSET_SYMBOL_FONT 1
 // Pocet pixelu pro pohyb textu ceny za menu smerem dolu
 #define ADD_Y_OFFSET_COIN_FONT 3
+
+// TEXTY
+
+#define INTRO_TEXT1 "starting..."
+#define CONNECT_TEXT1 "connecting..."
+#define CONNECT_TEXT2 "fail! try again..."
+#define CONNECT_TEXT3 "reconnecting..."
+#define CONNECT_TEXT4 "No wifi signal!"
+#define CONNECT_TEXT5 "reconnecting"
+#define READ_TEXT1 "loading data..."
 
 
 // Knihovna obsahujici obsluznou tridu CServis
@@ -85,21 +99,26 @@ int buttonHistory = 0;
 ///////////////////////////////
 void setup() 
 {
-  // Init konzoly
+  WiFi.disconnect();
   Serial.begin(SERIAL_SPEED);
   Serial.println("\n\n* CoinTicker v1.1");
   servis.Init( WIFI_NAME, WIFI_PASS, API_URL, 
                 URI1, URI2, URI3, URI4, 
                 JSON_COIN_SYMBOL, JSON_PRICE, 
                 JSON_HISTORY1,JSON_HISTORY2,JSON_HISTORY3 );
-  servis.ShowIntro();
+  servis.ShowIntro(INTRO_TEXT1);
   Serial.println("* Init done!");
-  pinMode(D8, INPUT);
-  Serial.println("* PIN D8 init OK!");
-  pinMode(D7, INPUT);
-  Serial.println("* PIN D7 init OK!");
+  pinMode(COIN_BUTTON, INPUT);
+  Serial.print("* PIN ");
+  Serial.print(COIN_BUTTON);
+  Serial.println(" init OK!");
+  pinMode(HISTORY_BUTTON, INPUT);
+  Serial.print("* PIN ");
+  Serial.print(D7);
+  Serial.println(" init OK!");
   iMode = 0;
   iTime = 0;
+  delay(2000);
 }
 
 ////////////////////////////////////
@@ -112,11 +131,15 @@ void loop()
   {
     case 0:
     {
+      servis.ShowConnect(CONNECT_TEXT1);
+      delay(1000);
       Serial.println("* Connect mode starting.");
       // Pokud se nelze pripojit k wifi, proved dalsi kolo...
       if ( !servis.ConnectMode(30) )
       {
         Serial.println("\n* Connection to wifi failed! We'll try again...");
+        servis.ShowConnect(CONNECT_TEXT2);
+        delay(5000);
         break;
       }
       Serial.println("* Connect mode done, switching to Normal mode.");
@@ -131,7 +154,8 @@ void loop()
       iTime += 1;
 
       // Zde se kontroluje a obsluhuje stisk tlacitka pro zmenu kryptomeny
-      buttonCoin = digitalRead(D8);
+      buttonCoin = LOW;
+      buttonCoin = digitalRead(COIN_BUTTON);
       if ( buttonCoin == HIGH )
       {
         ShowCoin++;
@@ -145,7 +169,8 @@ void loop()
       }
 
       // Zde se kontroluje a obsluhuje stisk tlacitka pro zmenu historie kryptomeny
-      buttonHistory = digitalRead(D7);
+      buttonHistory = LOW;
+      buttonHistory = digitalRead(HISTORY_BUTTON);
       if ( buttonHistory == HIGH )
       {
         ShowHistory++;
