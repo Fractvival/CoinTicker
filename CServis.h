@@ -2,7 +2,7 @@
 // Jadro Tickeru v1.1
 // * 06/2018
 // 
-
+////////////////////////
 
 // LCD, vytvoreni objektu pro praci s displejem
 // SSD1306
@@ -39,7 +39,7 @@ class CServis
     bool ConnectMode(const int & cAttempts);
     // Nacteni dat o menach z netu
     // Vraci true v pripade uspechu
-    // Argument je cislo konecne URL API, pocitane od 0 do 3 (EndAPI=4)
+    // Argument je cislo konecne URL API, pocitane od 0 do 3
     bool ReadDataFromSite(const int & endAPI);
     // Obnoveni dat ze serveru
     // Vrati true v pripade uspechu
@@ -56,6 +56,7 @@ class CServis
     void ShowIntro(const String & Text1);
     // Informace sdeleni o pripojovani
     void ShowConnect(const String & Text1);
+    // Toto sdeleni je pouzito v pripade ze vypadne spojeni behem obnovy dat
     void ShowConnect(const String & Text1, const String & Text2);
     // Informace sdeleni o nacitani dat ze serveru
     void ShowReadData(const String & Text1);
@@ -70,7 +71,7 @@ class CServis
     String    __API;
     // Konecna URL kryptomen vcetne lomitek (__API+__EndAPI=cela URL pro ziskani dat)
     String    __EndAPI[4];
-    // Zkratky (symboly) kryptomen, nacitaji se automaticky z API
+    // Informace o kryptomenach, nacitaji se automaticky z API
     Coin      __sCoin[4];
 
     // JSON znacky pro nacitani dat z API
@@ -82,6 +83,7 @@ class CServis
 
 };
 
+
 Coin CServis::GetCoinData(const int & iCoin)
 {
   return __sCoin[iCoin];      
@@ -91,13 +93,18 @@ Coin CServis::GetCoinData(const int & iCoin)
 String CServis::FixCoinText(const float & Price)
 {
   String fixString = "";
+  // Prevod meny i s desetinnou carkou na text
   String conString = (String)Price;
+  // Touto promennou zajistime prevod z float do int, 
+  // tedy prevod na cele cislo
   int dNum = Price;
+  // A toto cele cislo prevedeme na text
   String dString = (String)dNum;
-  //int dPoint = conString.indexOf(".")+1;  
+  // Zde se vytahneme pouze tu cast cisla za desetinnou carkou
+  // Diky tomu pak muzu zjistit pocet desetinnych mist
   String decString = conString.substring(conString.indexOf(".")+1);
   // Tu jde hlavne o to, srovnat pocet desetinnych mist na 2
-  // V dalsi casti teto fce se uy bude jen snizovat dle potreby.
+  // V dalsi casti teto fce se uz bude jen snizovat dle potreby.
   switch( decString.length() )
   {
     case 0:
@@ -233,8 +240,10 @@ void CServis::ShowIntro(const String & Text1)
   int Height = u8g2.getDisplayHeight();
   String WelcomeMessage1 = "Coin";
   String WelcomeMessage2 = "Ticker";
-  u8g2.drawStr( (Width/3)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2), 10, WelcomeMessage1.c_str() ); 
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage2.c_str())/2), 30, WelcomeMessage2.c_str() ); 
+  int widthText1 = (Width/3)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2);
+  int widthText2 = (Width/2)-(u8g2.getStrWidth(WelcomeMessage2.c_str())/2);
+  u8g2.drawStr( widthText1, 10, WelcomeMessage1.c_str() );
+  u8g2.drawStr( widthText2, 30, WelcomeMessage2.c_str() ); 
   u8g2.setFont(u8g2_font_crox3h_tf);
   String WelcomeMessage3 = Text1;
   u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 55, WelcomeMessage3.c_str() ); 
@@ -353,6 +362,8 @@ bool CServis::ReadDataFromSite(const int & endAPI)
   if (!client.connect(__API, 443)) 
   {
     Serial.print("[cli.connect() failed]");
+    // Pokud pri obnove vypadne spojeni (neni wifi), vypis zpravu
+    // a pote se znovu pokus o pripojeni
     ShowConnect(CONNECT_TEXT4,CONNECT_TEXT5);
     delay(5000);
     return false;
@@ -393,7 +404,7 @@ bool CServis::ReadDataFromSite(const int & endAPI)
   const size_t bufferSize = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(15) + 380;
   // Definice dynamickeho (automatickeho) bufferu
   DynamicJsonBuffer jsonBuffer(bufferSize);
-
+  // Sprasujeme JSON z pomocne promenne
   JsonArray& root = jsonBuffer.parseArray(payload.c_str());
   // Otestujeme spravnost JSONu
   // V pripade neuspechu koncime
@@ -429,7 +440,6 @@ bool CServis::ConnectMode(const int & cAttempts)
   // Pocitadlo neuspechu
   int cLoop = 0;
   // Zahajeni spojeni
-  //WiFi.begin();
   WiFi.begin(__ssidWifi.c_str(),__passWifi.c_str());
   // Pockame na spojeni s wifi s kontrolou neuspechu
   // Pokud spojeni neprobehne ve stanovenem poctu pokusu, ukonci smycku
@@ -447,6 +457,7 @@ bool CServis::ConnectMode(const int & cAttempts)
   Serial.println("OK!");
   Serial.println("* Attempt to first reading data from the server.");
   // A nyni jiz proved prvni nacteni dat ze serveru
+  // Pred touto operaci zobraz info na displej
   ShowReadData(READ_TEXT1);
   delay(1000);
   for ( int i = 0; i < 4; i++ )
@@ -464,7 +475,8 @@ bool CServis::ConnectMode(const int & cAttempts)
   return true;
 }
 
-
+// Tato fce by nemela do budoucna mit info o neuspechu na displej
+// Casto se stava ze data nejsou nactena na poprve, obtezovalo by to
 bool CServis::RefreshData(void)
 {
   for ( int i = 0; i < 4; i++ )
@@ -518,5 +530,5 @@ void CServis::Init( const String & wifiName, const String & passName, const Stri
   u8g2.clear();
 };
 
-
-
+/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////

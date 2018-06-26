@@ -13,13 +13,10 @@
 
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
 #include <WiFiClientSecure.h>
-#include <Arduino.h>
 #include <U8g2lib.h>
 
 // NASTAVENI TICKERU >
-
 // Rychlost serial portu pro vypisy
 #define SERIAL_SPEED 9600
 // Urceni Clock pinu (SCL) pro displej
@@ -61,7 +58,6 @@
 #define ADD_Y_OFFSET_COIN_FONT 3
 
 // TEXTY
-
 #define INTRO_TEXT1 "starting..."
 #define CONNECT_TEXT1 "connecting..."
 #define CONNECT_TEXT2 "fail! try again..."
@@ -69,7 +65,6 @@
 #define CONNECT_TEXT4 "No wifi signal!"
 #define CONNECT_TEXT5 "reconnecting"
 #define READ_TEXT1 "loading data..."
-
 
 // Knihovna obsahujici obsluznou tridu CServis
 #include "CServis.h"
@@ -82,7 +77,6 @@ CServis servis;
 // 1 = Normal mode, nacitani dat z netu a vypis na LCD
 int iMode;
 
-
 // Pocitadlo pro obnovu/nacteni dat ze serveru 
 int iTime = 0;
 // Urcuje ktera mena se ma zobrazit na displej
@@ -92,32 +86,42 @@ int ShowCoin = 0;
 // Platne hodnoty jsou 0,1,2
 int ShowHistory = 0;
 
-int buttonCoin = 0;
-int buttonHistory = 0;
+// Stav tlacitka pro zmenu meny
+int buttonCoin = LOW;
+// Stav tlacitka pro zmenu historie
+int buttonHistory = LOW;
 
 ///////////////////////////////
 ///////////////////////////////
 void setup() 
 {
+  // Zde se ukonci predchozi wifi relace
   WiFi.disconnect();
+  // Nastaveni rychlosti serial portu
   Serial.begin(SERIAL_SPEED);
   Serial.println("\n\n* CoinTicker v1.1");
+  // Inicializace tickeru
   servis.Init( WIFI_NAME, WIFI_PASS, API_URL, 
                 URI1, URI2, URI3, URI4, 
                 JSON_COIN_SYMBOL, JSON_PRICE, 
                 JSON_HISTORY1,JSON_HISTORY2,JSON_HISTORY3 );
   servis.ShowIntro(INTRO_TEXT1);
   Serial.println("* Init done!");
+  // Nastaveni PINu tlacitka pro zmenu meny na VSTUP
   pinMode(COIN_BUTTON, INPUT);
   Serial.print("* PIN ");
   Serial.print(COIN_BUTTON);
   Serial.println(" init OK!");
+  // Nastaveni PINu tlacitka pro zmenu historie na VSTUP
   pinMode(HISTORY_BUTTON, INPUT);
   Serial.print("* PIN ");
-  Serial.print(D7);
+  Serial.print(HISTORY_BUTTON);
   Serial.println(" init OK!");
+  // Pri startu tickeru bude zobrazena prvni mena
   iMode = 0;
+  // Pri startu tickeru bude zobrazena prvni historie
   iTime = 0;
+  // mala pauza pro intro
   delay(2000);
 }
 
@@ -131,26 +135,35 @@ void loop()
   {
     case 0:
     {
+      // Zobrazim info na displej o nadchazejicim pripojovani
       servis.ShowConnect(CONNECT_TEXT1);
+      // mala pauza pro info
       delay(1000);
       Serial.println("* Connect mode starting.");
       // Pokud se nelze pripojit k wifi, proved dalsi kolo...
+      // Aktualne je pouzito 30 pokusu o pripojeni pred vypsanim chyboveho hlaseni
+      // Po chybovem hlaseni opet probiha dalsi kolo pokusu
       if ( !servis.ConnectMode(30) )
       {
         Serial.println("\n* Connection to wifi failed! We'll try again...");
         servis.ShowConnect(CONNECT_TEXT2);
+        // pauza pro info
         delay(5000);
         break;
       }
       Serial.println("* Connect mode done, switching to Normal mode.");
+      // Pokud je ticker pripojen, prepne se do rezimu Normal mode
       iMode = 1;
+      // Vynulovani casovace
       iTime = 0;
+      // Prvni zobrazeni nactenych men
       servis.ShowCoin(ShowCoin,ShowHistory);
-      break;
-    }
+      break; // BREAK MODU 0
+    } // Konec case 0
     case 1:
     {
       delay(100);
+      // Kazdych 100ms zvys o 1
       iTime += 1;
 
       // Zde se kontroluje a obsluhuje stisk tlacitka pro zmenu kryptomeny
@@ -183,15 +196,18 @@ void loop()
         servis.ShowCoin(ShowCoin,ShowHistory);
       }
 
-      
+      // Pokud je dosazeno casu pro obnoveni, reloadne data se serveru
+      // casovac se opet vynuluje a pak vse zacne odznova
       if ( iTime >= REFRESH_TIME )
       {
         iTime = 0;
         Serial.println("\n* Start reloading data...");
+        // !! Reload dat ze serveru
         servis.RefreshData();
         Serial.println("* RELOADED!");
+        // Zobrazeni dat na displej
         servis.ShowCoin(ShowCoin,ShowHistory);
-
+        // Do konzoly se vypise stav nactenych men vcetne historie
         for ( int i = 0; i < 4; i++ )
         {
           Coin coin = servis.GetCoinData(i);
@@ -210,8 +226,10 @@ void loop()
           Serial.println("]");
         }
       }
-      
-      break;
-    }
-  }
-}
+      break; // BREAK modu 1
+    } // Konec case 1
+  } // Konec smycky switch
+} // Konec funkce loop()
+
+/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
