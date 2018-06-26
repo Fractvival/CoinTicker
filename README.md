@@ -29,8 +29,8 @@ Pred linkováním a uploadem do Wemosu nutno provest nastaveni Tickeru v uvodu s
 
 Pro nastavení wifi do které se bude ticker připojovat se musí upravit tyto položky
   ```ruby
-  - #define WIFI_NAME "wifi_name"
-  - #define WIFI_PASS "wifi_password"
+  #define WIFI_NAME "wifi_name"
+  #define WIFI_PASS "wifi_password"
   ```
 Pro nastavení vlastních měn je nejprve potřeba své měny najít v seznamu api na této adrese:
   https://api.coinmarketcap.com/v2/listings/
