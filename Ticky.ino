@@ -46,12 +46,14 @@
 #define JSON_HISTORY2 "percent_change_24h"
 #define JSON_HISTORY3 "percent_change_7d"
 // Font pouzity pro zobrazeni symbolu meny
-#define SYMBOL_FONT_NAME u8g2_font_timB14_tf
+#define SYMBOL_FONT_NAME u8g2_font_crox3h_tf//u8g2_font_timB14_tf
 // Font pouzity pro zobrazeni ceny za menu (font knihovny U8G2)
 #define COIN_FONT_NAME u8g2_font_logisoso18_tf
 // Font pouzity pro zobrazeni historie ceny men (font knihovny U8G2)
 #define HISTORY_FONT_NAME u8g2_font_crox3h_tf//u8g2_font_helvB12_tf
-#define ADD_Y_OFFSET_SYMBOL_FONT 2
+// Pocet pixelu pro pohyb textu symbolu smerem dolu (Y+OFFSET)
+#define ADD_Y_OFFSET_SYMBOL_FONT 1
+// Pocet pixelu pro pohyb textu ceny za menu smerem dolu
 #define ADD_Y_OFFSET_COIN_FONT 3
 
 
@@ -71,10 +73,13 @@ int iMode;
 int iTime = 0;
 // Urcuje ktera mena se ma zobrazit na displej
 // Platne hodnoty jsou 0,1,2,3
-int ShowCoin = 3;
+int ShowCoin = 0;
 // Urcuje ktera historie aktualni meny se ma zobrazit na displej
 // Platne hodnoty jsou 0,1,2
-int ShowHistory = 2;
+int ShowHistory = 0;
+
+int buttonCoin = 0;
+int buttonHistory = 0;
 
 ///////////////////////////////
 ///////////////////////////////
@@ -89,6 +94,10 @@ void setup()
                 JSON_HISTORY1,JSON_HISTORY2,JSON_HISTORY3 );
   servis.ShowIntro();
   Serial.println("* Init done!");
+  pinMode(D8, INPUT);
+  Serial.println("* PIN D8 init OK!");
+  pinMode(D7, INPUT);
+  Serial.println("* PIN D7 init OK!");
   iMode = 0;
   iTime = 0;
 }
@@ -120,6 +129,36 @@ void loop()
     {
       delay(100);
       iTime += 1;
+
+      // Zde se kontroluje a obsluhuje stisk tlacitka pro zmenu kryptomeny
+      buttonCoin = digitalRead(D8);
+      if ( buttonCoin == HIGH )
+      {
+        ShowCoin++;
+        if ( ShowCoin > 3 )
+        {
+          ShowCoin = 0;        
+        }
+        Serial.print("* Coin switched to ");
+        Serial.println(ShowCoin);
+        servis.ShowCoin(ShowCoin,ShowHistory);
+      }
+
+      // Zde se kontroluje a obsluhuje stisk tlacitka pro zmenu historie kryptomeny
+      buttonHistory = digitalRead(D7);
+      if ( buttonHistory == HIGH )
+      {
+        ShowHistory++;
+        if ( ShowHistory > 2 )
+        {
+          ShowHistory = 0;        
+        }
+        Serial.print("* History switched to ");
+        Serial.println(ShowHistory);
+        servis.ShowCoin(ShowCoin,ShowHistory);
+      }
+
+      
       if ( iTime >= REFRESH_TIME )
       {
         iTime = 0;

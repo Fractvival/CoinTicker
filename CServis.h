@@ -300,7 +300,7 @@ bool CServis::ReadDataFromSite(const int & endAPI)
   // V pripade ze se na server nelze pripojit, konci neuspechem
   if (!client.connect(__API, 443)) 
   {
-    Serial.print("[client.connect() failed] ");
+    Serial.print("[cli.connect() failed]");
     return false;
   }
   // Posleme pozadavek na server pro ziskani dat
@@ -345,7 +345,7 @@ bool CServis::ReadDataFromSite(const int & endAPI)
   // V pripade neuspechu koncime
   if (!root.success()) 
   {
-    Serial.print("[root.succes() failed] ");
+    Serial.print("[root.succes() failed]");
     return false;
   }  
   JsonObject& root_0 = root[0];
@@ -400,6 +400,7 @@ bool CServis::ConnectMode(const int & cAttempts)
     while( !ReadDataFromSite(i) )
     {
       Serial.print(".");
+      delay(500);
     }
     Serial.println("OK");
   }
