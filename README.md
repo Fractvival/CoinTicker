@@ -31,7 +31,7 @@ Pred linkováním a uploadem do Wemosu nutno provest nastaveni Tickeru v uvodu s
 ----------------------------------------
 KDE TO AKTUALNE STOJI ?
 ----------------------------------------
-- Ovládání / Tlačítka
+- Nápady, frajeřinky, optimalizace
 
 ----------------------------------------
 PLÁNY
