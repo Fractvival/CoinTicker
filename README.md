@@ -33,7 +33,7 @@ Pro nastavení wifi do které se bude ticker připojovat se musí upravit tyto p
   - #define WIFI_PASS "wifi_password"
   ```
 Pro nastavení vlastních měn je nejprve potřeba své měny najít v seznamu api na této adrese:
- https://api.coinmarketcap.com/v2/listings/
+- https://api.coinmarketcap.com/v2/listings/
 K vyhledání měny je potřeba znát nejlépe její mezinárodní zkratku, např.: BTC a tuto použít ve vyhledávání v prohlížeči.
 Tímto se dostaneme přímo na část kde je uvedena konečná podoba adresy, která se bude měnit v nastavení tickeru některého z URI.
 V našem případě nás bude zajímat hodnota ve ```"website_slug"```, u bitcoinu ```"website_slug": "bitcoin"```. 
