@@ -30,9 +30,9 @@
 // Rychlost obnovy dat ze serveru po 100ms intervalech (600*100=60000/1000=60 sekund)
 #define REFRESH_TIME 600
 // Nazev wifi pro pripojeni tickeru
-#define WIFI_NAME "wifi_name"
+#define WIFI_NAME "MyWifi"
 // Heslo wifi
-#define WIFI_PASS "wifi_password"
+#define WIFI_PASS "121212121212"
 // Adresa API pro nacitani dat
 #define API_URL "api.coinmarketcap.com"
 // Konecne adresy jednotlivych men
@@ -105,7 +105,8 @@ void setup()
                 URI1, URI2, URI3, URI4, 
                 JSON_COIN_SYMBOL, JSON_PRICE, 
                 JSON_HISTORY1,JSON_HISTORY2,JSON_HISTORY3 );
-  servis.ShowIntro(INTRO_TEXT1);
+  //servis.ShowIntro(INTRO_TEXT1);
+  servis.ShowDialogInfo(84,"COIN TICKER","welcome");
   Serial.println("* Init done!");
   // Nastaveni PINu tlacitka pro zmenu meny na VSTUP
   pinMode(COIN_BUTTON, INPUT);
@@ -136,7 +137,9 @@ void loop()
     case 0:
     {
       // Zobrazim info na displej o nadchazejicim pripojovani
-      servis.ShowConnect(CONNECT_TEXT1);
+      servis.ShowDialogInfo(84,"Connecting to WIFI","please wait");
+      servis.ShowIcon(281,0);
+      servis.ShowIcon(281,2);
       // mala pauza pro info
       delay(1000);
       Serial.println("* Connect mode starting.");

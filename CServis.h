@@ -52,6 +52,16 @@ class CServis
     String FixCoinText(const float & Price);
     // Zobrazi aktualne zvolenou menu a jeji zvolenou historii na displeji
     void ShowCoin(const int & iCoin,const int & iHistory);
+    // Zobrazi dialog s hlasenim po urcity cas
+    // Argument iconID je cislo ikony z nasledujiciho odkazu: 
+    // https://github.com/olikraus/u8g2/wiki/fntgrpiconic#open_iconic_all_2x
+    // timePause je doba, po kterou je dialog zobrazen
+    // textUp=Prvni radek textu
+    // textDown=Druhy radek textu
+    void ShowDialogInfo(const int & iconID, const String & textUp, const String & textDown );
+    // Zobrazi ikonu na displej v horni casti, bez smazani displeje
+    // Side ma 3 moznosti zobrazeni ikony>  0=vlevo, 1=stred, 2=vpravo
+    void ShowIcon(const int & iconID, const int & Side );
     // Uvodni obrazovku Tickeru
     void ShowIntro(const String & Text1);
     // Informace sdeleni o pripojovani
@@ -82,6 +92,54 @@ class CServis
     String    __HWeek;
 
 };
+
+void CServis::ShowIcon(const int & iconID, const int & Side )
+{
+  int Width = u8g2.getDisplayWidth();
+  int Height = u8g2.getDisplayHeight();
+  u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
+  u8g2.setFontPosTop();
+  switch(Side)
+  {
+    case 0:
+    {
+      u8g2.drawStr(0,0,String(char(iconID)).c_str());
+      //u8g2.sendBuffer();
+      break;
+    }
+    case 1:
+    {
+      u8g2.drawStr((Width/2)-8,0,String(char(iconID)).c_str());
+      //u8g2.sendBuffer();
+      break;
+    }
+    case 2:
+    {
+      u8g2.drawStr((Width-16),0,String(char(iconID)).c_str());
+      //u8g2.sendBuffer();
+      break;
+    }
+  }
+  u8g2.sendBuffer();
+}
+
+void CServis::ShowDialogInfo(const int & iconID, const String & textUp, const String & textDown )
+{
+  int Width = u8g2.getDisplayWidth();
+  int Height = u8g2.getDisplayHeight();
+  u8g2.clear();
+  u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
+  u8g2.setFontPosTop();
+  u8g2.drawStr((Width/2)-8,0,String(char(iconID)).c_str());
+  ////
+  u8g2.setFont(u8g2_font_shylock_nbp_tf);
+  int Max = u8g2.getMaxCharHeight();
+  int WidthTextUp = u8g2.getStrWidth(textUp.c_str());
+  int WidthTextDown = u8g2.getStrWidth(textDown.c_str());
+  u8g2.drawStr((Width/2)-(WidthTextUp/2),(20+Max/2),textUp.c_str());
+  u8g2.drawStr((Width/2)-(WidthTextDown/2),(40+Max/2),textDown.c_str());
+  u8g2.sendBuffer();
+}
 
 
 Coin CServis::GetCoinData(const int & iCoin)
