@@ -104,19 +104,16 @@ void CServis::ShowIcon(const int & iconID, const int & Side )
     case 0:
     {
       u8g2.drawStr(0,0,String(char(iconID)).c_str());
-      //u8g2.sendBuffer();
       break;
     }
     case 1:
     {
       u8g2.drawStr((Width/2)-8,0,String(char(iconID)).c_str());
-      //u8g2.sendBuffer();
       break;
     }
     case 2:
     {
       u8g2.drawStr((Width-16),0,String(char(iconID)).c_str());
-      //u8g2.sendBuffer();
       break;
     }
   }
@@ -411,6 +408,8 @@ void CServis::ShowCoin(const int & iCoin,const int & iHistory)
 
 bool CServis::ReadDataFromSite(const int & endAPI)
 {
+  // Staticke pocitadlo poruch spojeni
+  static int nBad = 0;
   // Pomocna promenna pro ulozeni nactene stranky z netu
   String payload;
   // Vytvoreni SSL klienta pro komunikaci se serverem
@@ -419,11 +418,16 @@ bool CServis::ReadDataFromSite(const int & endAPI)
   // V pripade ze se na server nelze pripojit, konci neuspechem
   if (!client.connect(__API, 443)) 
   {
+    nBad++;
     Serial.print("[cli.connect() failed]");
-    // Pokud pri obnove vypadne spojeni (neni wifi), vypis zpravu
-    // a pote se znovu pokus o pripojeni
-    ShowConnect(CONNECT_TEXT4,CONNECT_TEXT5);
-    delay(5000);
+    // Pokud pri obnove vypadne spojeni (neni wifi,neni internet), inkrementuj pocitadlo
+    // a pri prekroceni poctu 20 pokusu o spojeni zobraz ikonku poruchy! 
+    if ( nBad >= 20 )
+    {
+      nBad = 0; // za dalsich 20 poruch se uvidime..:]
+      ShowIcon(86,0); // ukaz ikonu poruchy
+    }
+    delay(1000);
     return false;
   }
   // Posleme pozadavek na server pro ziskani dat
@@ -478,6 +482,8 @@ bool CServis::ReadDataFromSite(const int & endAPI)
   __sCoin[endAPI].History[0] = root_0.get<float>(__HHour);
   __sCoin[endAPI].History[1] = root_0.get<float>(__HDay);
   __sCoin[endAPI].History[2] = root_0.get<float>(__HWeek);
+  // Staticke pocitadlo poruch pri spojeni vratime zpet na 0
+  nBad = 0;
   // Koncime uspechem :)
   return true;
 }
@@ -516,7 +522,7 @@ bool CServis::ConnectMode(const int & cAttempts)
   Serial.println("* Attempt to first reading data from the server.");
   // A nyni jiz proved prvni nacteni dat ze serveru
   // Pred touto operaci zobraz info na displej
-  ShowReadData(READ_TEXT1);
+  ShowDialogInfo(123,TEXT7,TEXT8);
   delay(1000);
   for ( int i = 0; i < 4; i++ )
   {

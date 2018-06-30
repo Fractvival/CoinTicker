@@ -17,6 +17,10 @@
 #include <U8g2lib.h>
 
 // NASTAVENI TICKERU >
+// Nazev wifi pro pripojeni tickeru
+#define WIFI_NAME "MyWifiName"
+// Heslo wifi
+#define WIFI_PASS "MyWifiPassword"
 // Rychlost serial portu pro vypisy
 #define SERIAL_SPEED 9600
 // Urceni Clock pinu (SCL) pro displej
@@ -29,10 +33,6 @@
 #define HISTORY_BUTTON D7
 // Rychlost obnovy dat ze serveru po 100ms intervalech (600*100=60000/1000=60 sekund)
 #define REFRESH_TIME 600
-// Nazev wifi pro pripojeni tickeru
-#define WIFI_NAME "MyWifi"
-// Heslo wifi
-#define WIFI_PASS "121212121212"
 // Adresa API pro nacitani dat
 #define API_URL "api.coinmarketcap.com"
 // Konecne adresy jednotlivych men
@@ -57,14 +57,19 @@
 // Pocet pixelu pro pohyb textu ceny za menu smerem dolu
 #define ADD_Y_OFFSET_COIN_FONT 3
 
-// TEXTY
-#define INTRO_TEXT1 "starting..."
-#define CONNECT_TEXT1 "connecting..."
-#define CONNECT_TEXT2 "fail! try again..."
-#define CONNECT_TEXT3 "reconnecting..."
-#define CONNECT_TEXT4 "No wifi signal!"
-#define CONNECT_TEXT5 "reconnecting"
-#define READ_TEXT1 "loading data..."
+//////////////// TEXTY
+// Intro
+#define TEXT1 "COIN TICKER"
+#define TEXT2 "welcome"
+// Pripojovani k wifi
+#define TEXT3 "Connecting to WIFI"
+#define TEXT4 "please wait"
+// Chyba pripojeni k wifi
+#define TEXT5 "Wifi unavailable"
+#define TEXT6 "next try.."
+// Prvni nacteni dat z netu
+#define TEXT7 "First reading!"
+#define TEXT8 "One moment.."
 
 // Knihovna obsahujici obsluznou tridu CServis
 #include "CServis.h"
@@ -105,8 +110,7 @@ void setup()
                 URI1, URI2, URI3, URI4, 
                 JSON_COIN_SYMBOL, JSON_PRICE, 
                 JSON_HISTORY1,JSON_HISTORY2,JSON_HISTORY3 );
-  //servis.ShowIntro(INTRO_TEXT1);
-  servis.ShowDialogInfo(84,"COIN TICKER","welcome");
+  servis.ShowDialogInfo(84,TEXT1,TEXT2);
   Serial.println("* Init done!");
   // Nastaveni PINu tlacitka pro zmenu meny na VSTUP
   pinMode(COIN_BUTTON, INPUT);
@@ -137,11 +141,9 @@ void loop()
     case 0:
     {
       // Zobrazim info na displej o nadchazejicim pripojovani
-      servis.ShowDialogInfo(84,"Connecting to WIFI","please wait");
-      servis.ShowIcon(281,0);
-      servis.ShowIcon(281,2);
+      servis.ShowDialogInfo(247,TEXT3,TEXT4);
       // mala pauza pro info
-      delay(1000);
+      delay(2000);
       Serial.println("* Connect mode starting.");
       // Pokud se nelze pripojit k wifi, proved dalsi kolo...
       // Aktualne je pouzito 30 pokusu o pripojeni pred vypsanim chyboveho hlaseni
@@ -149,7 +151,7 @@ void loop()
       if ( !servis.ConnectMode(30) )
       {
         Serial.println("\n* Connection to wifi failed! We'll try again...");
-        servis.ShowConnect(CONNECT_TEXT2);
+        servis.ShowDialogInfo(188,TEXT5,TEXT6);
         // pauza pro info
         delay(5000);
         break;
