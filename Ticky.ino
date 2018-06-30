@@ -18,9 +18,9 @@
 
 // NASTAVENI TICKERU >
 // Nazev wifi pro pripojeni tickeru
-#define WIFI_NAME "MyWifiName"
+#define WIFI_NAME "WifiName"
 // Heslo wifi
-#define WIFI_PASS "MyWifiPassword"
+#define WIFI_PASS "WiFiPassword"
 // Rychlost serial portu pro vypisy
 #define SERIAL_SPEED 9600
 // Urceni Clock pinu (SCL) pro displej
@@ -70,6 +70,15 @@
 // Prvni nacteni dat z netu
 #define TEXT7 "First reading!"
 #define TEXT8 "One moment.."
+//
+#define PREFIX_PRICE "$"
+#define POSTFIX_PRICE ""
+//
+#define HISTORY1 "%/h"
+#define HISTORY2 "%/d"
+#define HISTORY3 "%/w"
+//////////////
+//////////////
 
 // Knihovna obsahujici obsluznou tridu CServis
 #include "CServis.h"

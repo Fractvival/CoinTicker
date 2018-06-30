@@ -290,8 +290,8 @@ void CServis::ShowCoin(const int & iCoin,const int & iHistory)
 
   u8g2.setFont(COIN_FONT_NAME);
   String chPrice = FixCoinText(__sCoin[iCoin].Price);
-  String chPrefix = "$";
-  String chPostfix = "";
+  String chPrefix = PREFIX_PRICE;
+  String chPostfix = POSTFIX_PRICE;
   String chShowPrice = "";
   chShowPrice += chPrefix;
   chShowPrice += chPrice;
@@ -310,15 +310,15 @@ void CServis::ShowCoin(const int & iCoin,const int & iHistory)
   String chHPostfix = "";
   if ( iHistory == 0 )
   {
-    chHPostfix = "%/h";     
+    chHPostfix = HISTORY1;     
   }
   if ( iHistory == 1)
   {
-    chHPostfix = "%/d";     
+    chHPostfix = HISTORY2;     
   }
   if ( iHistory == 2 )
   {
-    chHPostfix = "%/w";     
+    chHPostfix = HISTORY3;     
   }
   String chShowHistory = "";
   chShowHistory += chHPrefix;
