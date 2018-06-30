@@ -62,14 +62,6 @@ class CServis
     // Zobrazi ikonu na displej v horni casti, bez smazani displeje
     // Side ma 3 moznosti zobrazeni ikony>  0=vlevo, 1=stred, 2=vpravo
     void ShowIcon(const int & iconID, const int & Side );
-    // Uvodni obrazovku Tickeru
-    void ShowIntro(const String & Text1);
-    // Informace sdeleni o pripojovani
-    void ShowConnect(const String & Text1);
-    // Toto sdeleni je pouzito v pripade ze vypadne spojeni behem obnovy dat
-    void ShowConnect(const String & Text1, const String & Text2);
-    // Informace sdeleni o nacitani dat ze serveru
-    void ShowReadData(const String & Text1);
 
   private:
 
@@ -284,74 +276,6 @@ String CServis::FixCoinText(const float & Price)
   }
   return fixString;
 }
-
-
-void CServis::ShowIntro(const String & Text1)
-{
-  u8g2.clear();
-  u8g2.setFont(u8g2_font_courB18_tf);
-  u8g2.setFontPosCenter();
-  int Width = u8g2.getDisplayWidth();
-  int Height = u8g2.getDisplayHeight();
-  String WelcomeMessage1 = "Coin";
-  String WelcomeMessage2 = "Ticker";
-  int widthText1 = (Width/3)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2);
-  int widthText2 = (Width/2)-(u8g2.getStrWidth(WelcomeMessage2.c_str())/2);
-  u8g2.drawStr( widthText1, 10, WelcomeMessage1.c_str() );
-  u8g2.drawStr( widthText2, 30, WelcomeMessage2.c_str() ); 
-  u8g2.setFont(u8g2_font_crox3h_tf);
-  String WelcomeMessage3 = Text1;
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 55, WelcomeMessage3.c_str() ); 
-  u8g2.sendBuffer();
-}
-
-void CServis::ShowConnect(const String & Text1)
-{
-  u8g2.clear();
-  u8g2.setFont(u8g2_font_open_iconic_www_4x_t);
-  u8g2.setFontPosCenter();
-  int Width = u8g2.getDisplayWidth();
-  int Height = u8g2.getDisplayHeight();
-  String WelcomeMessage1 = "Q";
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2), 18, WelcomeMessage1.c_str() ); 
-  u8g2.setFont(u8g2_font_crox3h_tf);
-  String WelcomeMessage3 = Text1;
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 55, WelcomeMessage3.c_str() ); 
-  u8g2.sendBuffer();
-}
-
-void CServis::ShowReadData(const String & Text1)
-{
-  u8g2.clear();
-  u8g2.setFont(u8g2_font_open_iconic_arrow_4x_t);
-  u8g2.setFontPosCenter();
-  int Width = u8g2.getDisplayWidth();
-  int Height = u8g2.getDisplayHeight();
-  String WelcomeMessage1 = "P";
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2), 18, WelcomeMessage1.c_str() ); 
-  u8g2.setFont(u8g2_font_crox3h_tf);
-  String WelcomeMessage3 = Text1;
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 55, WelcomeMessage3.c_str() ); 
-  u8g2.sendBuffer();
-}
-
-void CServis::ShowConnect(const String & Text1, const String & Text2)
-{
-  u8g2.clear();
-  u8g2.setFont(u8g2_font_open_iconic_www_2x_t);
-  u8g2.setFontPosCenter();
-  int Width = u8g2.getDisplayWidth();
-  int Height = u8g2.getDisplayHeight();
-  String WelcomeMessage1 = "Q";
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage1.c_str())/2), 10, WelcomeMessage1.c_str() ); 
-  u8g2.setFont(u8g2_font_crox3h_tf);
-  String WelcomeMessage3 = Text1;
-  String WelcomeMessage4 = Text2;
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage3.c_str())/2), 35, WelcomeMessage3.c_str() ); 
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(WelcomeMessage4.c_str())/2), 55, WelcomeMessage4.c_str() ); 
-  u8g2.sendBuffer();
-}
-
 
 void CServis::ShowCoin(const int & iCoin,const int & iHistory)
 {
