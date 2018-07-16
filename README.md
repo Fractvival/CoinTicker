@@ -29,6 +29,8 @@ K dosažení úspěšného přelinkování je nejprve nutné přidat do seznamu 
 
 KOMPILACE
 ---------
+Zajistete aby soubory Ticky.ino + CServis.h byly v jedne slozce
+
 Pred linkováním a uploadem do Wemosu nutno provest nastaveni Tickeru v uvodu souboru Ticky.ino
 
 Pro nastavení wifi do které se bude ticker připojovat se musí upravit tyto položky
