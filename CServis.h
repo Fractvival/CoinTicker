@@ -52,16 +52,16 @@ class CServis
     String FixCoinText(const float & Price);
     // Zobrazi aktualne zvolenou menu a jeji zvolenou historii na displeji
     void ShowCoin(const int & iCoin,const int & iHistory);
-    // Zobrazi dialog s hlasenim po urcity cas
+    // Zobrazi dialog s hlasenim
     // Argument iconID je cislo ikony z nasledujiciho odkazu: 
     // https://github.com/olikraus/u8g2/wiki/fntgrpiconic#open_iconic_all_2x
-    // timePause je doba, po kterou je dialog zobrazen
     // textUp=Prvni radek textu
     // textDown=Druhy radek textu
     void ShowDialogInfo(const int & iconID, const String & textUp, const String & textDown );
     // Zobrazi ikonu na displej v horni casti, bez smazani displeje
     // Side ma 3 moznosti zobrazeni ikony>  0=vlevo, 1=stred, 2=vpravo
     void ShowIcon(const int & iconID, const int & Side );
+    void ResetSaveText(const int & textID );
 
   private:
 
@@ -84,6 +84,8 @@ class CServis
     String    __HWeek;
 
 };
+
+
 
 void CServis::ShowIcon(const int & iconID, const int & Side )
 {
@@ -279,14 +281,21 @@ String CServis::FixCoinText(const float & Price)
 
 void CServis::ShowCoin(const int & iCoin,const int & iHistory)
 {
-  u8g2.clear();
+  //u8g2.clear();
 
   int Width = u8g2.getDisplayWidth();
   int Height = u8g2.getDisplayHeight();
 
-  u8g2.setFontPosTop();
+  u8g2.setFontMode(1);
+
+  u8g2.setFontPosCenter();
   u8g2.setFont(SYMBOL_FONT_NAME);
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(__sCoin[iCoin].ID.c_str() )/2), ADD_Y_OFFSET_SYMBOL_FONT, __sCoin[iCoin].ID.c_str() );
+
+  u8g2.setDrawColor(0);
+  int iMaxHeightA = u8g2.getMaxCharHeight();
+  u8g2.drawBox( 0, 0, Width, iMaxHeightA );
+  u8g2.setDrawColor(1);
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(__sCoin[iCoin].ID.c_str() )/2), (iMaxHeightA/2), __sCoin[iCoin].ID.c_str() );
 
   u8g2.setFont(COIN_FONT_NAME);
   String chPrice = FixCoinText(__sCoin[iCoin].Price);
@@ -297,9 +306,12 @@ void CServis::ShowCoin(const int & iCoin,const int & iHistory)
   chShowPrice += chPrice;
   chShowPrice += chPostfix;
   
-  u8g2.setFontPosCenter();
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowPrice.c_str() )/2), (Height/2)+ADD_Y_OFFSET_COIN_FONT, chShowPrice.c_str() );
-  
+  u8g2.setDrawColor(0);
+  int iMaxHeightB = u8g2.getMaxCharHeight();
+  u8g2.drawBox( 0, iMaxHeightA, Width, iMaxHeightB );
+  u8g2.setDrawColor(1);
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowPrice.c_str() )/2), (iMaxHeightA+(iMaxHeightB/2))+1, chShowPrice.c_str() );
+
   u8g2.setFont(HISTORY_FONT_NAME);
   String chHistory = FixCoinText(__sCoin[iCoin].History[iHistory]);
   String chHPrefix = "";
@@ -324,8 +336,12 @@ void CServis::ShowCoin(const int & iCoin,const int & iHistory)
   chShowHistory += chHPrefix;
   chShowHistory += chHistory;
   chShowHistory += chHPostfix;
-  u8g2.setFontPosBottom();
-  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowHistory.c_str() )/2), Height, chShowHistory.c_str() );
+
+  u8g2.setDrawColor(0);
+  int iMaxHeightC = u8g2.getMaxCharHeight();
+  u8g2.drawBox( 0, iMaxHeightA+iMaxHeightB, Width, Height-(iMaxHeightA+iMaxHeightB) );
+  u8g2.setDrawColor(1);
+  u8g2.drawStr( (Width/2)-(u8g2.getStrWidth(chShowHistory.c_str() )/2), iMaxHeightA+iMaxHeightB+(iMaxHeightC/2), chShowHistory.c_str() );
   
   u8g2.sendBuffer();
 }
@@ -345,11 +361,11 @@ bool CServis::ReadDataFromSite(const int & endAPI)
     nBad++;
     Serial.print("[cli.connect() failed]");
     // Pokud pri obnove vypadne spojeni (neni wifi,neni internet), inkrementuj pocitadlo
-    // a pri prekroceni poctu 20 pokusu o spojeni zobraz ikonku poruchy! 
-    if ( nBad >= 20 )
+    // a pri prekroceni poctu 5 pokusu o spojeni zobraz ikonku poruchy! 
+    if ( nBad >= 10 )
     {
-      nBad = 0; // za dalsich 20 poruch se uvidime..:]
-      ShowIcon(86,0); // ukaz ikonu poruchy
+      nBad = 0; // za dalsich 5 poruch se uvidime..:]
+      ShowIcon(87,0); // ukaz ikonu poruchy
     }
     delay(1000);
     return false;
@@ -514,6 +530,7 @@ void CServis::Init( const String & wifiName, const String & passName, const Stri
       __sCoin[i].History[j] = 0;
     }
   }
+
   u8g2.begin();  
   u8g2.clear();
 };

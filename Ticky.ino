@@ -18,9 +18,9 @@
 
 // NASTAVENI TICKERU >
 // Nazev wifi pro pripojeni tickeru
-#define WIFI_NAME "WifiName"
+#define WIFI_NAME "wifi_name"
 // Heslo wifi
-#define WIFI_PASS "WiFiPassword"
+#define WIFI_PASS "wifi_password"
 // Rychlost serial portu pro vypisy
 #define SERIAL_SPEED 9600
 // Urceni Clock pinu (SCL) pro displej
@@ -52,10 +52,6 @@
 #define COIN_FONT_NAME u8g2_font_logisoso18_tf
 // Font pouzity pro zobrazeni historie ceny men (font knihovny U8G2)
 #define HISTORY_FONT_NAME u8g2_font_crox3h_tf//u8g2_font_helvB12_tf
-// Pocet pixelu pro pohyb textu symbolu smerem dolu (Y+OFFSET)
-#define ADD_Y_OFFSET_SYMBOL_FONT 1
-// Pocet pixelu pro pohyb textu ceny za menu smerem dolu
-#define ADD_Y_OFFSET_COIN_FONT 3
 
 //////////////// TEXTY
 // Intro
@@ -170,6 +166,8 @@ void loop()
       iMode = 1;
       // Vynulovani casovace
       iTime = 0;
+      // Smazeme displej, nebot fce ShowCoin toto neprovadi
+      u8g2.clear();
       // Prvni zobrazeni nactenych men
       servis.ShowCoin(ShowCoin,ShowHistory);
       break; // BREAK MODU 0
