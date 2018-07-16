@@ -61,7 +61,6 @@ class CServis
     // Zobrazi ikonu na displej v horni casti, bez smazani displeje
     // Side ma 3 moznosti zobrazeni ikony>  0=vlevo, 1=stred, 2=vpravo
     void ShowIcon(const int & iconID, const int & Side );
-    void ResetSaveText(const int & textID );
 
   private:
 
