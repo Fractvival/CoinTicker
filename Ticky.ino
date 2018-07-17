@@ -18,9 +18,9 @@
 
 // NASTAVENI TICKERU >
 // Nazev wifi pro pripojeni tickeru
-#define WIFI_NAME "VanillkaNET"
+#define WIFI_NAME "wifi_name"
 // Heslo wifi
-#define WIFI_PASS "0420792433240"
+#define WIFI_PASS "wifi_password"
 // Rychlost serial portu pro vypisy
 #define SERIAL_SPEED 9600
 // Urceni Clock pinu (SCL) pro displej
