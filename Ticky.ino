@@ -1,5 +1,5 @@
 //////////////////////
-// COIN TICKER v1.1
+// COIN TICKER v1.2
 // 
 //////////////////////
 //
@@ -18,9 +18,9 @@
 
 // NASTAVENI TICKERU >
 // Nazev wifi pro pripojeni tickeru
-#define WIFI_NAME "wifi_name"
+#define WIFI_NAME "VanillkaNET"
 // Heslo wifi
-#define WIFI_PASS "wifi_password"
+#define WIFI_PASS "0420792433240"
 // Rychlost serial portu pro vypisy
 #define SERIAL_SPEED 9600
 // Urceni Clock pinu (SCL) pro displej
@@ -54,14 +54,11 @@
 #define HISTORY_FONT_NAME u8g2_font_crox3h_tf//u8g2_font_helvB12_tf
 
 //////////////// TEXTY
-// Intro
-#define TEXT1 "COIN TICKER"
-#define TEXT2 "welcome"
 // Pripojovani k wifi
 #define TEXT3 "Connecting to WIFI"
 #define TEXT4 "please wait"
 // Chyba pripojeni k wifi
-#define TEXT5 "Wifi unavailable"
+#define TEXT5 "WIFI unavailable"
 #define TEXT6 "next try.."
 // Prvni nacteni dat z netu
 #define TEXT7 "First reading!"
@@ -109,13 +106,15 @@ void setup()
   WiFi.disconnect();
   // Nastaveni rychlosti serial portu
   Serial.begin(SERIAL_SPEED);
-  Serial.println("\n\n* CoinTicker v1.1");
+  Serial.println("\n\n* CoinTicker v1.2");
   // Inicializace tickeru
   servis.Init( WIFI_NAME, WIFI_PASS, API_URL, 
                 URI1, URI2, URI3, URI4, 
                 JSON_COIN_SYMBOL, JSON_PRICE, 
                 JSON_HISTORY1,JSON_HISTORY2,JSON_HISTORY3 );
-  servis.ShowDialogInfo(84,TEXT1,TEXT2);
+  // INTRO TEXT
+  servis.ShowIntro();
+  //// KONEC INTRO TEXT
   Serial.println("* Init done!");
   // Nastaveni PINu tlacitka pro zmenu meny na VSTUP
   pinMode(COIN_BUTTON, INPUT);
@@ -146,7 +145,7 @@ void loop()
     case 0:
     {
       // Zobrazim info na displej o nadchazejicim pripojovani
-      servis.ShowDialogInfo(247,TEXT3,TEXT4);
+      servis.ShowDialogInfo(281/*247*/,TEXT3,TEXT4);
       // mala pauza pro info
       delay(2000);
       Serial.println("* Connect mode starting.");
@@ -156,7 +155,7 @@ void loop()
       if ( !servis.ConnectMode(30) )
       {
         Serial.println("\n* Connection to wifi failed! We'll try again...");
-        servis.ShowDialogInfo(188,TEXT5,TEXT6);
+        servis.ShowDialogInfo(267/*188*/,TEXT5,TEXT6);
         // pauza pro info
         delay(5000);
         break;
@@ -223,17 +222,17 @@ void loop()
         for ( int i = 0; i < 4; i++ )
         {
           Coin coin = servis.GetCoinData(i);
-          Serial.print("* Coin no.");
+          Serial.print("* Coin #");
           Serial.print(i);
-          Serial.print(" Symbol: ");
+          Serial.print(" |>Symbol: ");
           Serial.print(coin.ID);
-          Serial.print(" Price:");
+          Serial.print(" |>Price:");
           Serial.print(coin.Price);
-          Serial.print(" History: [");
+          Serial.print(" |>History: H[");
           Serial.print(coin.History[0]);
-          Serial.print("] [");
+          Serial.print("] D[");
           Serial.print(coin.History[1]);
-          Serial.print("] [");
+          Serial.print("] W[");
           Serial.print(coin.History[2]);
           Serial.println("]");
         }
