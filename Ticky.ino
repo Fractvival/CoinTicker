@@ -18,9 +18,9 @@
 
 // NASTAVENI TICKERU >
 // Nazev wifi pro pripojeni tickeru
-#define WIFI_NAME "wifi_name"
+#define WIFI_NAME "WiFi_name"
 // Heslo wifi
-#define WIFI_PASS "wifi_password"
+#define WIFI_PASS "WiFi_password"
 // Rychlost serial portu pro vypisy
 #define SERIAL_SPEED 9600
 // Urceni Clock pinu (SCL) pro displej
