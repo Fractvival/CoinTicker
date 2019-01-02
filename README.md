@@ -11,6 +11,8 @@ Příklad zapojení tlačítek pro ovládání (bez displeje):
   <img width="128" height="116" src="https://github.com/Fractvival/CoinTicker/blob/master/Images/ct-layout.png">
 </p>
 
+https://www.youtube.com/watch?v=-ElJNoKtW-M
+
 
 KNIHOVNY
 --------
