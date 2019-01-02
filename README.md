@@ -1,4 +1,4 @@
-CoinTicker psaný v Arduino
+#CoinTicker
 
 Zkoušeno na Wemos D1 mini Lite a Wemos D1 mini
 
