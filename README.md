@@ -49,12 +49,3 @@ Právě hodnotu bitcoin poté uvedeme na konec některé z URI, například takt
 Je nutné před textem ```bitcoin/``` zachovat část adresy ```/v1/ticker/``` pokud ji chceme načítat z api.coinmarketcap.com.
 Každé API však může mít rozdílnou podobu URI.
 
-----------------------------------------
-KDE TO AKTUALNE STOJI ?
-----------------------------------------
-- Nápady, frajeřinky, optimalizace
-
-----------------------------------------
-PLÁNY
-----------------------------------------
-Veliké
