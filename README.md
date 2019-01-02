@@ -1,4 +1,5 @@
 CoinTicker psaný v Arduino
+
 Zkoušeno na Wemos D1 mini Lite a Wemos D1 mini
 
 Displej je použit SSD1306 s rozlišením 128x64p přes linku I2C (4pinový displej).
